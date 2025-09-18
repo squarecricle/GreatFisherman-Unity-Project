@@ -222,27 +222,43 @@ void UpdateProgress()
 
     void EndGame(bool success)
     {
+        currentState = success ? GameState.Success : GameState.Failed;
         // 根据游戏结果，设置不同的结束状态
-        if (success)
+            if (success)
         {
-            currentState = GameState.Success;
-        }
-        else
-        {
-            currentState = GameState.Failed;
-        }
-        fishingGamePanel.SetActive(false);
-        statusText.gameObject.SetActive(true);
-        startButton.gameObject.SetActive(true);
+            // === 品质审判 ===
+            FishQuality finalQuality;//最终品质
+            if (_progressDropCount == 0)
+            {
+                finalQuality = FishQuality.吹牛资本;//完美无缺
+            }
+            else if (_progressDropCount == 1)
+            {
+                finalQuality = FishQuality.史诗对决;//有点小瑕疵
+            }
+            else if (_progressDropCount == 2)
+            {
+                finalQuality = FishQuality.像模像样;//还能接受
+            }
+            else // 3次及以上
+            {
+                finalQuality = FishQuality.勉强上钩;//差强人意
+            }
 
-        if (success)
-        {
-            statusText.text = "成功!";
-            // 在这里可以添加成功后的奖励逻辑
+            statusText.text = "成功!\n品质: " + finalQuality;//显示品质
+            Debug.Log("最终品质: " + finalQuality + ", 下降次数: " + _progressDropCount);
         }
-        else
+        else    
         {
             statusText.text = "失败!";
         }
+        
+
+        // 显示结果，隐藏游戏UI，显示按钮和状态文本
+        fishingGamePanel.SetActive(false);//隐藏钓鱼UI
+        statusText.gameObject.SetActive(true);//显示结果文本
+        startButton.gameObject.SetActive(true);//显示开始按钮
+        StopAllCoroutines(); // 停止鱼的移动协程
+      
     }
 }
