@@ -5,6 +5,7 @@ using TMPro; // 引入TextMeshPro的命名空间
 
 public class FishingGameManager : MonoBehaviour
 {
+    #region 公有变量
     [Header("当前鱼的数据")]
     public FishData currentFishData;
     [Header("游戏对象关联")]
@@ -30,8 +31,8 @@ public class FishingGameManager : MonoBehaviour
     public float gravity = 800f;            // 绿条受到的重力
     public float progressIncreaseRate = 0.2f; // 进度条增长速率
     public float progressDecreaseRate = 0.1f; // 进度条衰减速率
-
-/////////私有变量区域vvvvvv
+#endregion
+    #region 私有变量
     private float playerBarVerticalVelocity = 0f; // 绿条当前的垂直速度
     private float fishTargetY;                    // 鱼的目标Y坐标
     private float fishingAreaHeight;              // 钓鱼区域的总高度
@@ -39,9 +40,35 @@ public class FishingGameManager : MonoBehaviour
     private float _fishMaxY;                    // (缓存) 鱼活动的最大Y坐标
     private int _progressDropCount; // (计数器) 记录进度条下降的次数
     private bool _isCurrentlyOverlapping; // (状态追踪器) 记录“上一帧”是否在重叠
+    #endregion
+    #region 私有函数
+        private float CalculateFishLength(FishQuality quality)
+    {
+        // 根据品质，从 currentFishData 中选择对应的长度范围
+        Vector2 lengthRange;
+        switch (quality)
+        {
+            case FishQuality.吹牛资本:
+                lengthRange = currentFishData.lengthRangeChuiNiuZiBen;
+                break;
+            case FishQuality.史诗对决:
+                lengthRange = currentFishData.lengthRangeShiShiDuiJue;
+                break;
+            case FishQuality.像模像样:
+                lengthRange = currentFishData.lengthRangeXiangMoXiangYang;
+                break;
+            default: // 默认情况，包括 "勉强上钩"
+                lengthRange = currentFishData.lengthRangeMianQiang;
+                break;
+        }
+        
+        // 在选定的范围内，生成一个随机的长度值
+        return Random.Range(lengthRange.x, lengthRange.y);
+    }
 
-////////私有变量区域///////
 
+
+    #endregion
     void Start()
     {
         currentState = GameState.NotStarted;
@@ -55,7 +82,7 @@ public class FishingGameManager : MonoBehaviour
     public void StartGame()
     {
         //防止忘记在Inspector里拖拽currentFishData导致报错
-         if (currentFishData == null)
+        if (currentFishData == null)
         {
             Debug.LogError("错误：currentFishData 未设置！无法开始游戏。");
             return; // 直接退出，不执行后续代码
@@ -66,7 +93,7 @@ public class FishingGameManager : MonoBehaviour
         progressBar.value = 0.25f; // 设置初始进度
         StopAllCoroutines();//这可以防止在快速连续开始/结束游戏时，有旧的协程还在“游荡”。
                             // 显示游戏UI，隐藏按钮和状态文本
-       
+
         _progressDropCount = 0;//重置脱钩次数
         _isCurrentlyOverlapping = false; // 游戏开始时默认不在重叠区
 
@@ -86,7 +113,7 @@ public class FishingGameManager : MonoBehaviour
         //代码优化钓鱼小游戏前先计算边界范围
         float halfFishHeight = fishIcon.rect.height / 2;
         _fishMinY = -fishingAreaHeight / 2 + halfFishHeight;
-        _fishMaxY = fishingAreaHeight / 2 - halfFishHeight;        
+        _fishMaxY = fishingAreaHeight / 2 - halfFishHeight;
     }
 
     void Update()
@@ -160,7 +187,7 @@ public class FishingGameManager : MonoBehaviour
                     //随机生成[目前鱼数据]里的等待时间区间的某个时间，模拟鱼的思考，等待该时间后协程再次开启
                     break;
             }
-         }
+        }
     }
 
     void MoveFish()
@@ -172,41 +199,41 @@ public class FishingGameManager : MonoBehaviour
     }
 
     // 4. 更新进度条并判断输赢
-void UpdateProgress()
-{
-    bool isOverlappingNow = IsOverlapping();//使用重叠判断函数判断这一帧重叠情况
+    void UpdateProgress()
+    {
+        bool isOverlappingNow = IsOverlapping();//使用重叠判断函数判断这一帧重叠情况
 
-    // 核心逻辑：检测状态变化
-    // 如果“上一帧在重叠”并且“这一帧没重叠”，说明一次“脱钩”发生了
-    if (_isCurrentlyOverlapping && !isOverlappingNow)
-    {
-        _progressDropCount++;
-        Debug.Log("脱钩发生！当前下降次数: " + _progressDropCount); // 添加日志方便我们调试
-    }
-    
-    // 更新状态记录器，为下一帧做准备
-    _isCurrentlyOverlapping = isOverlappingNow;
+        // 核心逻辑：检测状态变化
+        // 如果“上一帧在重叠”并且“这一帧没重叠”，说明一次“脱钩”发生了
+        if (_isCurrentlyOverlapping && !isOverlappingNow)
+        {
+            _progressDropCount++;
+            Debug.Log("脱钩发生！当前下降次数: " + _progressDropCount); // 添加日志方便我们调试
+        }
 
-    // 根据当前是否重叠，更新进度条
-    if (isOverlappingNow)
-    {
-        progressBar.value += progressIncreaseRate * Time.deltaTime;
-    }
-    else
-    {
-        progressBar.value -= progressDecreaseRate * Time.deltaTime;
-    }
+        // 更新状态记录器，为下一帧做准备
+        _isCurrentlyOverlapping = isOverlappingNow;
 
-    // 判断输赢 (这部分逻辑不变)
-    if (progressBar.value >= 1f)
-    {
-        EndGame(true);
+        // 根据当前是否重叠，更新进度条
+        if (isOverlappingNow)
+        {
+            progressBar.value += progressIncreaseRate * Time.deltaTime;
+        }
+        else
+        {
+            progressBar.value -= progressDecreaseRate * Time.deltaTime;
+        }
+
+        // 判断输赢 (这部分逻辑不变)
+        if (progressBar.value >= 1f)
+        {
+            EndGame(true);
+        }
+        else if (progressBar.value <= 0f)
+        {
+            EndGame(false);
+        }
     }
-    else if (progressBar.value <= 0f)
-    {
-        EndGame(false);
-    }
-}
     // 检查绿条和鱼是否重叠
     bool IsOverlapping()
     {
@@ -224,41 +251,46 @@ void UpdateProgress()
     {
         currentState = success ? GameState.Success : GameState.Failed;
         // 根据游戏结果，设置不同的结束状态
-            if (success)
+        if (success)
         {
-            // === 品质审判 ===
+            // 1. 先进行品质审判
             FishQuality finalQuality;//最终品质
-            if (_progressDropCount == 0)
+            if (_progressDropCount == 0)finalQuality = FishQuality.吹牛资本;
+            else if (_progressDropCount == 1)finalQuality = FishQuality.史诗对决;
+            else if (_progressDropCount == 2) finalQuality = FishQuality.像模像样;
+            else finalQuality = FishQuality.勉强上钩;
+            // 2. 计算最终长度
+            float finalLength = CalculateFishLength(finalQuality);
+            // 3. 创建并打包标准化的“渔获报告”
+            CatchResult result = new CatchResult
             {
-                finalQuality = FishQuality.吹牛资本;//完美无缺
-            }
-            else if (_progressDropCount == 1)
-            {
-                finalQuality = FishQuality.史诗对决;//有点小瑕疵
-            }
-            else if (_progressDropCount == 2)
-            {
-                finalQuality = FishQuality.像模像样;//还能接受
-            }
-            else // 3次及以上
-            {
-                finalQuality = FishQuality.勉强上钩;//差强人意
-            }
-
-            statusText.text = "成功!\n品质: " + finalQuality;//显示品质
-            Debug.Log("最终品质: " + finalQuality + ", 下降次数: " + _progressDropCount);
+                FishedData = currentFishData,
+                FishedQuality = finalQuality,
+                Length = finalLength
+            };
+            // 4. 显示结果
+            statusText.text = $"成功!\n品质: {result.FishedQuality}\n长度: {result.Length:F2} cm"; // 使用了字符串插值和格式化
+            Debug.Log($"渔获报告 - 鱼: {result.FishedData.fishName}, 品质: {result. FishedQuality}, 长度: {result.Length:F2} cm");
         }
-        else    
+        else
         {
             statusText.text = "失败!";
         }
-        
+
 
         // 显示结果，隐藏游戏UI，显示按钮和状态文本
         fishingGamePanel.SetActive(false);//隐藏钓鱼UI
         statusText.gameObject.SetActive(true);//显示结果文本
         startButton.gameObject.SetActive(true);//显示开始按钮
         StopAllCoroutines(); // 停止鱼的移动协程
-      
     }
+        /// <summary>
+        /// 标准化的渔获报告，用于封装一次钓鱼的最终结果
+        /// </summary>
+        public struct CatchResult //我们用一个结构体来封装钓鱼结果
+        {
+            public FishData FishedData; // 钓上来的鱼的原始数据
+            public FishingGameManager.FishQuality FishedQuality; // 成品鱼品质    
+            public float Length; // 根据品质计算出的最终长度
+        }    
 }
