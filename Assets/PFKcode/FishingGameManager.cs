@@ -185,7 +185,18 @@ public class FishingGameManager : MonoBehaviour
                     // 所以当它恢复时，会再次回到while的条件判断，开始下一次循环
                     yield return new WaitForSeconds(Random.Range(currentFishData.minPauseDuration, currentFishData.maxPauseDuration));
                     //随机生成[目前鱼数据]里的等待时间区间的某个时间，模拟鱼的思考，等待该时间后协程再次开启
+                break;
+                    // --- 防御性代码 ---
+                default:
+                    //打印一条清晰的错误日志，告诉未来的我们问题出在哪
+                    Debug.LogError($"[FishingGameManager] 遇到未处理的鱼行为类型: {currentFishData.behaviorType}，来自鱼类: {currentFishData.fishName}。请检查FishData配置！");
+
+                    // 第二步：提供一个安全的“保底”行为，防止无限循环
+                    // 这里我们让它像“平滑移动”一样，只等待，不做任何移动
+                    // yield return null; 也是一个选项，代表“暂停一帧”
+                    yield return new WaitForSeconds(1f); 
                     break;
+                // --- 防御性代码结束 ---
             }
         }
     }

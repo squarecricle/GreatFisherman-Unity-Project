@@ -19,7 +19,7 @@ MonoBehaviour:
   location: 0
   timeOfDay: -1
   behaviorType: 1
-  moveSpeed: 150
+  moveSpeed: 100
   minPauseDuration: 0.5
   maxPauseDuration: 1.5
   baseSellPrice: 5
