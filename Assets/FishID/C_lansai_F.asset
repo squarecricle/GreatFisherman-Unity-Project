@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f3cc09d9dfaa104bb5d65f348c44e86, type: 3}
-  m_Name: lansai_fish
+  m_Name: C_lansai_F
   m_EditorClassIdentifier: 
   fishName: "\u84DD\u9CC3\u9C7C"
   description: "\u6570\u91CF\u591A\u5230\u4F60\u4E0D\u60F3\u89C1\u5230\u5B83..."

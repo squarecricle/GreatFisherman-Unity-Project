@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f3cc09d9dfaa104bb5d65f348c44e86, type: 3}
-  m_Name: maomao_fish
+  m_Name: L_maomao_F
   m_EditorClassIdentifier: 
   fishName: "\u732B\u732B\u9C7C"
   description: "\u55B5~ \u5B83\u53EA\u662F\u60F3\u548C\u4F60\u73A9\u4E2A\u6E38\u620F\uFF0C\u4E00\u4E2A\u8BA9\u4F60\u6293\u72C2\u7684\u6E38\u620F"
