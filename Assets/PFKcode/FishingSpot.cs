@@ -1,10 +1,6 @@
 using System.Collections.Generic; // 引入命名空间，以便使用 List<>
 using UnityEngine;
 
-/// <summary>
-/// 钓鱼点管理器
-/// 负责管理该钓鱼点的“鱼池”以及启动钓鱼迷你游戏的逻辑
-/// </summary>
 public class FishingSpot : MonoBehaviour
 {
     [Header("系统关联")]
