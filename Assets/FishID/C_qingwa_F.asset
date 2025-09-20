@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3cc09d9dfaa104bb5d65f348c44e86, type: 3}
   m_Name: C_qingwa_F
   m_EditorClassIdentifier: 
-  fishName: "\u9752\u86D9"
-  description: "\u4E25\u683C\u6765\u8BF4\u5B83\u4E0D\u662F\u9C7C\uFF0C\u4F46\u65E2\u7136\u4E0A\u94A9\u4E86\u2026\r\n"
-  fishIcon: {fileID: 0}
-  rarity: 0
-  location: 1
-  timeOfDay: 1
-  behaviorType: 1
-  moveSpeed: 150
-  minPauseDuration: 0.2
-  maxPauseDuration: 0.8
-  baseSellPrice: 20
-  lengthRangeMianQiang: {x: 2, y: 4}
-  lengthRangeXiangMoXiangYang: {x: 4, y: 7}
-  lengthRangeShiShiDuiJue: {x: 7, y: 11}
-  lengthRangeChuiNiuZiBen: {x: 11, y: 16}
+  FishName: 
+  Description: 
+  FishIcon: {fileID: 0}
+  Rarity: 0
+  Location: 0
+  ApplicableTimeOfDay: 0
+  FishBehavior: 1
+  MoveSpeed: 150
+  MinPauseDuration: 0.5
+  MaxPauseDuration: 1.5
+  BaseSellPrice: 0
+  LengthRangeMianQiang: {x: 0, y: 0}
+  LengthRangeXiangMoXiangYang: {x: 0, y: 0}
+  LengthRangeShiShiDuiJue: {x: 0, y: 0}
+  LengthRangeChuiNiuZiBen: {x: 0, y: 0}

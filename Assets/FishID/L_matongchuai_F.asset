@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3cc09d9dfaa104bb5d65f348c44e86, type: 3}
   m_Name: L_matongchuai_F
   m_EditorClassIdentifier: 
-  fishName: "\u9EC4\u91D1\u9A6C\u6876\u640B"
-  description: "\u5B83\u4E0D\u662F\u9C7C\uFF0C\u4F46\u6BD4\u4EFB\u4F55\u9C7C\u90FD\u503C\u94B1\r"
-  fishIcon: {fileID: 0}
-  rarity: 3
-  location: 2
-  timeOfDay: -1
-  behaviorType: 0
-  moveSpeed: 50
-  minPauseDuration: 1
-  maxPauseDuration: 3
-  baseSellPrice: 3000
-  lengthRangeMianQiang: {x: 30, y: 30}
-  lengthRangeXiangMoXiangYang: {x: 40, y: 40}
-  lengthRangeShiShiDuiJue: {x: 50, y: 50}
-  lengthRangeChuiNiuZiBen: {x: 100, y: 100}
+  FishName: 
+  Description: 
+  FishIcon: {fileID: 0}
+  Rarity: 0
+  Location: 0
+  ApplicableTimeOfDay: 0
+  FishBehavior: 1
+  MoveSpeed: 150
+  MinPauseDuration: 0.5
+  MaxPauseDuration: 1.5
+  BaseSellPrice: 0
+  LengthRangeMianQiang: {x: 0, y: 0}
+  LengthRangeXiangMoXiangYang: {x: 0, y: 0}
+  LengthRangeShiShiDuiJue: {x: 0, y: 0}
+  LengthRangeChuiNiuZiBen: {x: 0, y: 0}

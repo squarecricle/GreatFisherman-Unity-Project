@@ -349,18 +349,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 595c3646f00db8c4498e4e0be0df0478, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentFishData: {fileID: 11400000, guid: dc56f1cd522666e479cfb07d26078ff5, type: 2}
-  fishingGamePanel: {fileID: 939217166}
-  progressBar: {fileID: 824867855}
-  playerBar: {fileID: 2071589611}
-  fishIcon: {fileID: 1608397147}
-  statusText: {fileID: 1411776982}
-  startButton: {fileID: 1123589057}
-  currentState: 0
-  playerBarMoveSpeed: 400
-  gravity: 1200
-  progressIncreaseRate: 0.2
-  progressDecreaseRate: 0.3
+  CurrentFishData: {fileID: 0}
+  MiniGamePanel: {fileID: 939217166}
+  ProgressBar: {fileID: 824867855}
+  PlayerBar: {fileID: 2071589611}
+  FishIcon: {fileID: 1608397147}
+  ResultStatusText: {fileID: 1411776982}
+  CloseMiniGameButton: {fileID: 1123589057}
+  CurrentMiniGameState: 0
+  PlayerBarMoveSpeed: 300
+  Gravity: 800
+  ProgressIncreaseRate: 0.2
+  ProgressDecreaseRate: 0.1
 --- !u!4 &565500588
 Transform:
   m_ObjectHideFlags: 0
@@ -433,17 +433,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u5F00\u59CB"
+  m_text: "\u5173\u95ED\n\u6E38\u620F"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f2872619ded001a42a3edfc9517083cd, type: 2}
-  m_sharedMaterial: {fileID: 2374756472184615542, guid: f2872619ded001a42a3edfc9517083cd, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: cd45d13b9c2708145837a5933f3bb804, type: 2}
+  m_sharedMaterial: {fileID: 8373076962709304557, guid: cd45d13b9c2708145837a5933f3bb804, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -460,10 +460,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
-  m_fontSizeBase: 40
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -607,10 +607,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2180c97d6906ada4b8045c7188fdc3ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fishingGameManager: {fileID: 565500587}
-  availableFish:
+  FishingGameManager: {fileID: 565500587}
+  StartFishingButton: {fileID: 1186448456}
+  FishPool:
   - {fileID: 11400000, guid: dc56f1cd522666e479cfb07d26078ff5, type: 2}
-  - {fileID: 11400000, guid: 18f87208a87b687488e3b61703d54cfe, type: 2}
+  - {fileID: 11400000, guid: 17091d13f6c1fa2408db36ca933b2fbc, type: 2}
 --- !u!4 &681863357
 Transform:
   m_ObjectHideFlags: 0
@@ -661,7 +662,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 257.32, y: 89}
+  m_AnchoredPosition: {x: 35.65999, y: 86.999985}
   m_SizeDelta: {x: 80, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &824867855
@@ -751,7 +752,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 25.4319, y: 2.8258}
+  m_AnchoredPosition: {x: -196.22812, y: 0.8257847}
   m_SizeDelta: {x: 130.8638, y: 605.6516}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &939217168
@@ -805,7 +806,7 @@ GameObject:
   - component: {fileID: 1123589058}
   - component: {fileID: 1123589057}
   m_Layer: 5
-  m_Name: StartButton
+  m_Name: closeButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -828,7 +829,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -295, y: -0.0000076294}
+  m_AnchoredPosition: {x: -514.66003, y: 207.99998}
   m_SizeDelta: {x: 154.678, y: 147.08}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1123589057
@@ -888,7 +889,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.55660367, g: 1, b: 0.7177308, a: 1}
+  m_Color: {r: 0.19617483, g: 0.6855345, b: 0.3737301, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -926,7 +927,7 @@ GameObject:
   - component: {fileID: 1186448459}
   - component: {fileID: 1186448458}
   m_Layer: 5
-  m_Name: Starfishing
+  m_Name: StarMiniGame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -949,7 +950,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -297.66, y: -214}
+  m_AnchoredPosition: {x: -512, y: -50}
   m_SizeDelta: {x: 160, y: 149}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1186448458
@@ -1191,7 +1192,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 526.3594, y: 274.7345}
+  m_AnchoredPosition: {x: 304.69934, y: 272.7345}
   m_SizeDelta: {x: 366.8549, y: -205.3026}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1411776982
@@ -1277,7 +1278,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.8753357, y: 0.7870159, z: -1.0076904, w: -0.0000010058538}
+  m_margin: {x: 0.8753357, y: 0.7870159, z: -214.193, w: -0.0000010058538}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

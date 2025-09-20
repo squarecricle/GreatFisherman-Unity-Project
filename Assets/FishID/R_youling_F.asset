@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3cc09d9dfaa104bb5d65f348c44e86, type: 3}
   m_Name: R_youling_F
   m_EditorClassIdentifier: 
-  fishName: "\u5E7D\u7075\u9C7C"
-  description: "\u534A\u900F\u660E\u7684\u8EAB\u4F53\uFF0C\u4EFF\u4F5B\u6765\u81EA\u53E6\u4E00\u4E2A\u4E16\u754C\r\n"
-  fishIcon: {fileID: 0}
-  rarity: 1
-  location: 1
-  timeOfDay: 2
-  behaviorType: 1
-  moveSpeed: 220
-  minPauseDuration: 0.5
-  maxPauseDuration: 2
-  baseSellPrice: 180
-  lengthRangeMianQiang: {x: 8, y: 12}
-  lengthRangeXiangMoXiangYang: {x: 12, y: 20}
-  lengthRangeShiShiDuiJue: {x: 20, y: 32}
-  lengthRangeChuiNiuZiBen: {x: 32, y: 50}
+  FishName: 
+  Description: 
+  FishIcon: {fileID: 0}
+  Rarity: 0
+  Location: 0
+  ApplicableTimeOfDay: 0
+  FishBehavior: 1
+  MoveSpeed: 150
+  MinPauseDuration: 0.5
+  MaxPauseDuration: 1.5
+  BaseSellPrice: 0
+  LengthRangeMianQiang: {x: 0, y: 0}
+  LengthRangeXiangMoXiangYang: {x: 0, y: 0}
+  LengthRangeShiShiDuiJue: {x: 0, y: 0}
+  LengthRangeChuiNiuZiBen: {x: 0, y: 0}
