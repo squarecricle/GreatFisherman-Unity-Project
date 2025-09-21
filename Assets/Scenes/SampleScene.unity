@@ -208,6 +208,7 @@ GameObject:
   m_Component:
   - component: {fileID: 119558411}
   - component: {fileID: 119558412}
+  - component: {fileID: 119558413}
   m_Layer: 0
   m_Name: CastingAndHookingManager
   m_TagString: Untagged
@@ -246,6 +247,62 @@ MonoBehaviour:
   PowerBar: {fileID: 1677066263}
   SweetSpot: {fileID: 2012830742}
   PowerBarSpeed: 0.8
+--- !u!114 &119558413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119558410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42bde9e39a78194489ff9fc0f8279905, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PowerBarSlider: {fileID: 1677066263}
+  TotalDuration: 4
+  SpeedProfileCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1.4998715
+      outSlope: 1.4998715
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.44196907
+    - serializedVersion: 3
+      time: 0.45121875
+      value: 0.2998956
+      inSlope: 0.28931424
+      outSlope: 0.28931424
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.21506488
+    - serializedVersion: 3
+      time: 0.8987139
+      value: 0.59728456
+      inSlope: 1.4997908
+      outSlope: 1.4997908
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.44427255
+      outWeight: 0.37524533
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 7.8691864
+      outSlope: 7.8691864
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.13252406
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &409003768
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,7 +443,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
   m_AnchorMax: {x: 1, y: 0.75}
-  m_AnchoredPosition: {x: -0.000030517578, y: 0.000011444092}
+  m_AnchoredPosition: {x: 0, y: 0.000011444092}
   m_SizeDelta: {x: -0.0001, y: -0.000015259}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &478149977
@@ -1713,8 +1770,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -181.90637, y: 400.15524}
-  m_SizeDelta: {x: 575.007, y: 127.0099}
+  m_AnchoredPosition: {x: 8.9654, y: 400.15524}
+  m_SizeDelta: {x: 1758.2004, y: 127.0099}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1677066263
 MonoBehaviour:
@@ -2048,8 +2105,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 8.1545105, y: 0.30609894}
-  m_SizeDelta: {x: -433.6908, y: -49.2356}
+  m_AnchoredPosition: {x: -15, y: 0.000038147}
+  m_SizeDelta: {x: -1593.6848, y: -49.2356}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2071589610
 GameObject:
