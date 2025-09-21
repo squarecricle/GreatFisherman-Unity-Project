@@ -4,7 +4,7 @@ using UnityEngine;
 public class FishingSpot : MonoBehaviour
 {
     [Header("系统关联")]
-    public FishingGameManager FishingGameManager;
+    public FishingMiniGameManager FishingGameManager;
     public GameObject StartFishingButton; 
 
     [Header("鱼池配置")]

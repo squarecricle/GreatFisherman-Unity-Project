@@ -3,7 +3,7 @@ using UnityEngine.UI; // 引入UI命名空间
 using System.Collections; // 引入协程命名空间
 using TMPro; // 引入TextMeshPro的命名空间
 
-public class FishingGameManager : MonoBehaviour
+public class FishingMiniGameManager : MonoBehaviour
 {
     #region 公有变量
     [Header("当前鱼的数据")]
@@ -275,7 +275,7 @@ public class FishingGameManager : MonoBehaviour
         public struct CatchResult //我们用一个结构体来封装钓鱼结果
         {
             public FishData FishedData; // 钓上来的鱼的原始数据
-            public FishingGameManager.FishQuality FishedQuality; // 成品鱼品质    
+            public FishingMiniGameManager.FishQuality FishedQuality; // 成品鱼品质    
             public float Length; // 根据品质计算出的最终长度
         }    
 
