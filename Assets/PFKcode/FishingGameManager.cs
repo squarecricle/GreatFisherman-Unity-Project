@@ -14,7 +14,7 @@ public class FishingGameManager : MonoBehaviour
     public RectTransform PlayerBar;     // 玩家控制的绿条
     public RectTransform FishIcon;      // 鱼的图标
     public TextMeshProUGUI ResultStatusText; // 把 Text 修改为 TextMeshProUGUI
-
+    public PlayerBarController PlayerBarController; // 玩家控制的绿条脚本
     public Button CloseMiniGameButton;          // 开始按钮
     public enum GameState// 我们用一个公开的枚举来定义所有可能的游戏状态 
     {
@@ -27,13 +27,13 @@ public class FishingGameManager : MonoBehaviour
     public enum FishQuality { 吹牛资本, 史诗对决, 像模像样, 勉强上钩 }
 
     [Header("游戏参数 - 可在Inspector中调整")]
-    public float PlayerBarMoveSpeed = 300f; // 绿条上升速度
-    public float Gravity = 800f;            // 绿条受到的重力
+
+
     public float ProgressIncreaseRate = 0.2f; // 进度条增长速率
     public float ProgressDecreaseRate = 0.1f; // 进度条衰减速率
     #endregion
     #region 私有变量
-    private float _playerBarVerticalVelocity = 0f; // 绿条当前的垂直速度
+
     private float _fishTargetY;                    // 鱼的目标Y坐标
     private float _fishingAreaHeight;              // 钓鱼区域的总高度
     private float _fishMinY;                    // (缓存) 鱼活动的最小Y坐标
@@ -109,9 +109,8 @@ public class FishingGameManager : MonoBehaviour
 
         // 获取钓鱼区域的高度，用于计算边界
         _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
-
-        // 初始化玩家条和鱼的位置
-        PlayerBar.anchoredPosition = new Vector2(PlayerBar.anchoredPosition.x, 0);
+        PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
+        // 初始化鱼的位置
         FishIcon.anchoredPosition = new Vector2(FishIcon.anchoredPosition.x, 0);
 
         // 启动鱼的移动逻辑
@@ -129,8 +128,7 @@ public class FishingGameManager : MonoBehaviour
         {
             case GameState.InProgress:
                 // 只有在“进行中”状态下，才处理这些游戏逻辑
-                HandlePlayerInput();
-                MovePlayerBar();
+                PlayerBarController.HandleUpdate(); // ←-- 修改这里
                 MoveFish();
                 UpdateProgress();
                 break;
@@ -139,37 +137,6 @@ public class FishingGameManager : MonoBehaviour
                 //     // Play celebration animation...
                 //     break;
         }
-    }
-
-    // 1. 处理玩家输入
-    void HandlePlayerInput()
-    {
-        if (Input.GetMouseButton(0)) // 鼠标左键按住 (在手机上对应触摸)
-        {
-            // 按住时，给一个向上的速度
-            _playerBarVerticalVelocity = PlayerBarMoveSpeed;
-        }
-        else
-        {
-            // 松开时，只受重力影响，速度会持续下降
-            _playerBarVerticalVelocity -= Gravity * Time.deltaTime;
-        }
-    }
-
-    // 2. 移动玩家的绿条
-    void MovePlayerBar()
-    {
-        // 根据速度更新位置
-        PlayerBar.anchoredPosition += new Vector2(0, _playerBarVerticalVelocity * Time.deltaTime);
-
-        // 限制绿条不出界
-        float halfPlayerBarHeight = PlayerBar.rect.height / 2;
-        float minY = -_fishingAreaHeight / 2 + halfPlayerBarHeight;
-        float maxY = _fishingAreaHeight / 2 - halfPlayerBarHeight;
-
-        float currentY = PlayerBar.anchoredPosition.y;
-        currentY = Mathf.Clamp(currentY, minY, maxY); // Mathf.Clamp是限制范围的神器
-        PlayerBar.anchoredPosition = new Vector2(PlayerBar.anchoredPosition.x, currentY);
     }
 
     // 3. 移动鱼 (使用协程控制行为模式)
