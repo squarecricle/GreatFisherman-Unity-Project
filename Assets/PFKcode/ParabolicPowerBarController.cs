@@ -22,7 +22,7 @@ public class ParabolicPowerBarController : MonoBehaviour//力度条进度条变�
         // 如果正在蓄力，则更新逻辑
         if (_isCharging)
         {
-            UpdatePowerBar();
+            UpdatePowerBar();//更新力度条
         }
     }
 

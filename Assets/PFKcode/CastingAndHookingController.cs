@@ -13,6 +13,7 @@ public class CastingAndHookingController : MonoBehaviour
     private enum GameplayState
     {
         Inactive,       // 未激活
+        ReadyToCast,   // 准备抛竿
         Casting,        // 正在蓄力
         WaitingForBite, // 等待咬钩
         Hooking,        // 提线反应
@@ -40,6 +41,9 @@ public class CastingAndHookingController : MonoBehaviour
             case GameplayState.Inactive:
                 // 不做任何事
                 break;
+            case GameplayState.ReadyToCast:
+            HandleReadyToCastState();//在这里处理准备抛竿逻辑
+                break;  
             case GameplayState.Casting:
                 HandleCastingState();//在这里处理蓄力逻辑
                 break;
@@ -63,7 +67,8 @@ public class CastingAndHookingController : MonoBehaviour
     public void StartCastingProcess()//开始蓄力流程
     {
         CastingAndHookingPanel.SetActive(true);//显示钓鱼UI
-        ChangeState(GameplayState.Casting);//切换到蓄力状态
+        ChangeState(GameplayState.ReadyToCast);//切换到准备抛竿状态
+        // 直接切换到抛竿状态，方便测试
     }
 
     #endregion
@@ -75,6 +80,18 @@ public class CastingAndHookingController : MonoBehaviour
         _currentState = newState;// 更新当前状态
         Debug.Log("状态切换为: " + _currentState); // 打印日志方便我们调试
     }
+
+    private void HandleReadyToCastState()                    
+    {                                                         
+        // 在准备状态下，我们只等待玩家按下鼠标                
+        if (Input.GetMouseButtonDown(0))                        
+        {                                                       
+            // 捕获到按下的瞬间，立即命令工具开始蓄力            
+            PowerBarController.StartCharging();                 
+            // 然后立刻切换到“正在蓄力”状态                      
+            ChangeState(GameplayState.Casting);                 
+        }                                                       
+    }          
     private void HandleCastingState()//处理蓄力状态
     {
         // 当玩家“按下”鼠标左键的瞬间
