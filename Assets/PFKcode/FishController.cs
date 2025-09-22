@@ -10,6 +10,8 @@ public class FishController : MonoBehaviour
     private float _minY;                  // 活动范围的最小Y值
     private float _maxY;                  // 活动范围的最大Y值
     private Coroutine _behaviorCoroutine; // 用于存储和控制行为协程
+    public float TopY => _rectTransform.anchoredPosition.y + _rectTransform.rect.height / 2;
+    public float BottomY => _rectTransform.anchoredPosition.y - _rectTransform.rect.height / 2;
 
     void Awake()
     {

@@ -157,7 +157,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: -0.0009765625}
+  m_AnchoredPosition: {x: 0, y: -0.0009765625}
   m_SizeDelta: {x: -0.00012207, y: 0.0020752}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &48137
@@ -245,8 +245,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CastingAndHookingPanel: {fileID: 48135}
   PowerBar: {fileID: 1677066263}
-  SweetSpot: {fileID: 2012830742}
-  PowerBarSpeed: 0.8
+  SweetSpot: {fileID: 0}
+  PowerBarSpeed: 1
 --- !u!114 &119558413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,7 +260,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PowerBarSlider: {fileID: 1677066263}
-  TotalDuration: 4
+  TotalDuration: 3
   SpeedProfileCurve:
     serializedVersion: 2
     m_Curve:
@@ -496,7 +496,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.98742133, g: 0.444029, b: 0.444029, a: 1}
+  m_Color: {r: 1, g: 0.7496687, b: 0.41194963, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1770,8 +1770,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8.9654, y: 400.15524}
-  m_SizeDelta: {x: 1758.2004, y: 127.0099}
+  m_AnchoredPosition: {x: 0.0000066757, y: 429.1335}
+  m_SizeDelta: {x: 1758.2004, y: 141.2769}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1677066263
 MonoBehaviour:
@@ -1874,7 +1874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9748427, g: 0.7369525, b: 0.33414403, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2096,7 +2096,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2012830741}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2105,8 +2105,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -15, y: 0.000038147}
-  m_SizeDelta: {x: -1593.6848, y: -49.2356}
+  m_AnchoredPosition: {x: -11.341492, y: -1.0192032}
+  m_SizeDelta: {x: -1586.3677, y: -38.7243}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2071589610
 GameObject:

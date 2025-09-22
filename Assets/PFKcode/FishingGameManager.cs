@@ -12,10 +12,10 @@ public class FishingMiniGameManager : MonoBehaviour
     public GameObject MiniGamePanel; // 整个钓鱼游戏UI的容器
     public Slider ProgressBar;          // 进度条
     public RectTransform PlayerBar;     // 玩家控制的绿条
-    public RectTransform FishIcon;      // 鱼的图标
     public TextMeshProUGUI ResultStatusText; // 把 Text 修改为 TextMeshProUGUI
     public PlayerBarController PlayerBarController; // 玩家控制的绿条脚本
     public Button CloseMiniGameButton;          // 开始按钮
+    public FishController FishIconController; // 鱼的图标脚本
     public enum GameState// 我们用一个公开的枚举来定义所有可能的游戏状态 
     {
         NotStarted, // 还未开始
@@ -34,7 +34,6 @@ public class FishingMiniGameManager : MonoBehaviour
     #endregion
     #region 私有变量
 
-    private float _fishTargetY;                    // 鱼的目标Y坐标
     private float _fishingAreaHeight;              // 钓鱼区域的总高度
     private float _fishMinY;                    // (缓存) 鱼活动的最小Y坐标
     private float _fishMaxY;                    // (缓存) 鱼活动的最大Y坐标
@@ -111,14 +110,9 @@ public class FishingMiniGameManager : MonoBehaviour
         _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
         PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
         // 初始化鱼的位置
-        FishIcon.anchoredPosition = new Vector2(FishIcon.anchoredPosition.x, 0);
+        FishIconController.Initialize(CurrentFishData, _fishingAreaHeight); // <--- 初始化鱼
+        FishIconController.StartBehavior(); 
 
-        // 启动鱼的移动逻辑
-        StartCoroutine(FishBehavior());
-        //代码优化钓鱼小游戏前先计算边界范围
-        float halfFishHeight = FishIcon.rect.height / 2;
-        _fishMinY = -_fishingAreaHeight / 2 + halfFishHeight;
-        _fishMaxY = _fishingAreaHeight / 2 - halfFishHeight;
     }
 
     void Update()
@@ -129,7 +123,6 @@ public class FishingMiniGameManager : MonoBehaviour
             case GameState.InProgress:
                 // 只有在“进行中”状态下，才处理这些游戏逻辑
                 PlayerBarController.HandleUpdate(); // ←-- 修改这里
-                MoveFish();
                 UpdateProgress();
                 break;
                 // 以后我们可以在这里添加其他状态的逻辑，比如成功时播放庆祝动画等
@@ -139,48 +132,6 @@ public class FishingMiniGameManager : MonoBehaviour
         }
     }
 
-    // 3. 移动鱼 (使用协程控制行为模式)
-    IEnumerator FishBehavior()
-    {
-        // 我们需要一个循环，只要游戏还在进行中，这个循环就一直执行
-        while (CurrentMiniGameState == GameState.InProgress)
-        {
-            switch (CurrentFishData.FishBehavior)
-            {
-                case FishData.FishBehaviorType.平滑移动:
-
-                    // 随机一个新的目标Y位置
-
-                    _fishTargetY = Random.Range(_fishMinY, _fishMaxY);
-
-                    // 随机一个等待时间，模拟鱼的思考
-                    // 协程会在这里暂停，但因为外层有while循环，
-                    // 所以当它恢复时，会再次回到while的条件判断，开始下一次循环
-                    yield return new WaitForSeconds(Random.Range(CurrentFishData.MinPauseDuration, CurrentFishData.MaxPauseDuration));
-                    //随机生成[目前鱼数据]里的等待时间区间的某个时间，模拟鱼的思考，等待该时间后协程再次开启
-                break;
-                    // --- 防御性代码 ---
-                default:
-                    //打印一条清晰的错误日志，告诉未来的我们问题出在哪
-                    Debug.LogError($"[FishingGameManager] 遇到未处理的鱼行为类型: {CurrentFishData.FishBehavior}，来自鱼类: {CurrentFishData.FishName}。请检查FishData配置！");
-
-                    // 第二步：提供一个安全的“保底”行为，防止无限循环
-                    // 这里我们让它像“平滑移动”一样，只等待，不做任何移动
-                    // yield return null; 也是一个选项，代表“暂停一帧”
-                    yield return new WaitForSeconds(1f); 
-                    break;
-                // --- 防御性代码结束 ---
-            }
-        }
-    }
-
-    void MoveFish()
-    {
-        // 平滑地将鱼移动到目标位置
-        Vector2 currentFishPos = FishIcon.anchoredPosition;//读取这上一帧最后鱼的所在位置
-        Vector2 targetPos = new Vector2(currentFishPos.x, _fishTargetY);//读取协程中新生成的位置 
-        FishIcon.anchoredPosition = Vector2.MoveTowards(currentFishPos, targetPos, CurrentFishData.MoveSpeed * Time.deltaTime);
-    }
 
     // 4. 更新进度条并判断输赢
     void UpdateProgress()
@@ -223,9 +174,8 @@ public class FishingMiniGameManager : MonoBehaviour
     {
         float playerBarTop = PlayerBar.anchoredPosition.y + PlayerBar.rect.height / 2;
         float playerBarBottom = PlayerBar.anchoredPosition.y - PlayerBar.rect.height / 2;
-        float fishTop = FishIcon.anchoredPosition.y + FishIcon.rect.height / 2;
-        float fishBottom = FishIcon.anchoredPosition.y - FishIcon.rect.height / 2;
-
+        float fishTop = FishIconController.TopY;
+        float fishBottom = FishIconController.BottomY;
         // 如果绿条的顶部在鱼的底部之上，或者绿条的底部在鱼的顶部之下，则没有重叠
         // 所以反过来，就是重叠了
         return playerBarTop > fishBottom && playerBarBottom < fishTop;
@@ -266,7 +216,7 @@ public class FishingMiniGameManager : MonoBehaviour
         MiniGamePanel.SetActive(false);//隐藏钓鱼UI
         ResultStatusText.gameObject.SetActive(true);//显示结果文本
         CloseMiniGameButton.gameObject.SetActive(true);//显示关闭按钮
-
+        FishIconController.StopBehavior();
         StopAllCoroutines(); // 停止鱼的移动协程
     }
         /// <summary>

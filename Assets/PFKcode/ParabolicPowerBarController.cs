@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI; // 引入UI命名空间
 
-public class ParabolicPowerBarController : MonoBehaviour//变速曲线力度条控制器
+public class ParabolicPowerBarController : MonoBehaviour//力度条进度条变化曲线控制器
 {
     [Header("UI组件关联")]
     public Slider PowerBarSlider; // 拖入你的力度条
@@ -19,17 +19,6 @@ public class ParabolicPowerBarController : MonoBehaviour//变速曲线力度条�
 
     void Update()
     {
-        // 检测玩家输入
-        if (Input.GetMouseButtonDown(0))
-        {
-            StartCharging();
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            StopCharging();
-        }
-
         // 如果正在蓄力，则更新逻辑
         if (_isCharging)
         {
@@ -77,7 +66,7 @@ public class ParabolicPowerBarController : MonoBehaviour//变速曲线力度条�
         // 3. 【最关键的一步】
         //    将线性时间(_timer / TotalDuration) 映射到 AnimationCurve 上，
         //    获取一个非线性的进度条Value。
-        float currentValue = SpeedProfileCurve.Evaluate(_timer / TotalDuration);//动画曲线实例.映射(归一化时间)
+        float currentValue = SpeedProfileCurve.Evaluate(_timer / TotalDuration);//动画曲线实例.映射(归一化的时间)
 
         // 4. 将计算出的新值赋给力度条
         PowerBarSlider.value = currentValue;
