@@ -40,49 +40,39 @@ public class GameFlowManager : MonoBehaviour
     /// </summary>
     public void SelectCreekSpot()
     {
-        // 1. 将钓点数据传递给小游戏总管，让它提前准备好鱼池信息
-        MiniGameManager.CurrentFishData = CreekSpot.SelectFishByWeight();
-
-        // 2. 切换界面，并更新标题
-        MainMenuPanel.SetActive(false);
-        FishingUIPanel.SetActive(true);
-        SpotTitleText.text = "小溪";
-
-        // 3. 启动抛竿流程
-        CastingController.StartCastingProcess();
+        PrepareToFish(CreekSpot, "小溪");
     }
 
-    /// <summary>
-    /// “选择森林湖钓点”的指令 (这个方法将由按钮调用)
-    /// </summary>
     public void SelectForestLakeSpot()
     {
-        // 1. 传递数据
-        MiniGameManager.CurrentFishData = ForestLakeSpot.SelectFishByWeight();
-        
-        // 2. 切换界面
-        MainMenuPanel.SetActive(false);
-        FishingUIPanel.SetActive(true);
-        SpotTitleText.text = "森林湖";
-
-        // 3. 启动流程
-        CastingController.StartCastingProcess();
+        PrepareToFish(ForestLakeSpot, "森林湖");
     }
 
-    /// <summary>
-    /// “选择沙滩钓点”的指令 (这个方法将由按钮调用)
-    /// </summary>
     public void SelectBeachSpot()
     {
-        // 1. 传递数据
-        MiniGameManager.CurrentFishData = BeachSpot.SelectFishByWeight();
-        
-        // 2. 切换界面
-        MainMenuPanel.SetActive(false);
-        FishingUIPanel.SetActive(true);
-        SpotTitleText.text = "沙滩";
+        PrepareToFish(BeachSpot, "沙滩");
+    }
 
-        // 3. 启动流程
+    // 我们把重复的逻辑抽出来，放到一个私有方法里
+    private void PrepareToFish(FishingSpot spot, string spotName)
+    {
+        MiniGameManager.CurrentFishData = spot.SelectFishByWeight();
+
+        MainMenuPanel.SetActive(false);//隐藏主菜单
+        FishingUIPanel.SetActive(true);
+        SpotTitleText.text = spotName;
+
+        // 启动带延迟的协程，而不是直接调用
+        StartCoroutine(DelayedStartCasting());
+    }
+
+    // 新增一个协程，用于延迟调用
+    private System.Collections.IEnumerator DelayedStartCasting()
+    {
+        // 等待一帧，让点击事件过去
+        yield return null; 
+
+        // 在下一帧再真正开始抛竿流程
         CastingController.StartCastingProcess();
     }
 }

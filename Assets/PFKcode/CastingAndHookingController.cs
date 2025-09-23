@@ -58,7 +58,6 @@ public class CastingAndHookingController : MonoBehaviour
         //力度条清零
         PowerBarController.ResetPowerBar();
 
-        StartCastingProcess();
     }
 
     void Update()
@@ -94,9 +93,10 @@ public class CastingAndHookingController : MonoBehaviour
     #region 公有方法
     public void StartCastingProcess()//开始蓄力流程
     {
+        PowerBarController.ResetPowerBar();//重置力度条 
         CastingAndHookingPanel.SetActive(true);//显示钓鱼UI
         ChangeState(GameplayState.ReadyToCast);//切换到准备抛竿状态
-        // 直接切换到抛竿状态，方便测试
+
     }
 
     #endregion
