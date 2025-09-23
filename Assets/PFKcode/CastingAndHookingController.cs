@@ -10,7 +10,7 @@ public class CastingAndHookingController : MonoBehaviour
         public Image HookIcon; // 拖入你场景中那个巨大的“感叹号”Image
     [Header("系统关联")]
         public FishingMiniGameManager FishingGameManager; // 拖入场景中的 FishMiniGameManager 对象
-        public FishingSpot CurrentFishingSpot; // （临时）拖入场景中的 FishingSpot 对象
+        public FishingSpot CurrentFishingSpot; // 拖入场景中的 FishingSpot 对象
 
     [Header("甜蜜点参数")]
         [Tooltip("完美抛竿时，提线反应的时间窗口(秒)")] 
@@ -238,7 +238,6 @@ public class CastingAndHookingController : MonoBehaviour
     // 无论循环是因为时间到还是因为被break，都先隐藏感叹号
     HookIcon.gameObject.SetActive(false);
 
-    // --- ▼▼▼ 请用以下代码替换旧的 if/else 逻辑 ▼▼▼ ---
     if (caughtInTime)
     {
         Debug.Log("提线成功！启动“与鱼博弈”小游戏！");
@@ -259,7 +258,7 @@ public class CastingAndHookingController : MonoBehaviour
         // 失败后，回到可以重新开始抛竿的状态
         StartCastingProcess(); 
     }
-    // --- ▲▲▲ 替换完成 ▲▲▲ ---
+
     }
     #endregion 私有方法
 }

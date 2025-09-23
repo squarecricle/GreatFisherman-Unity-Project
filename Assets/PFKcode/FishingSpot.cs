@@ -46,7 +46,7 @@ public class FishingSpot : MonoBehaviour
     /// 根据鱼的稀有度权重，从 FishPool 列表中挑选一条鱼
     /// </summary>
     /// <returns>被选中的鱼</returns>
-    private FishData SelectFishByWeight()
+    public FishData SelectFishByWeight()
     {
         // --- 步骤 a: 计算总权重 ---
         int totalWeight = 0;
