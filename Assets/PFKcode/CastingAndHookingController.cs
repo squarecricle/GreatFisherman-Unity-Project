@@ -5,16 +5,30 @@ public class CastingAndHookingController : MonoBehaviour
 {
     #region 公有变量
     [Header("UI组件关联")]
-    public GameObject CastingAndHookingPanel; // 整个玩法的UI容器
+        public GameObject CastingAndHookingPanel; // 整个玩法的UI容器
+    [Header("Hooking 阶段UI")]
+        public Image HookIcon; // 拖入你场景中那个巨大的“感叹号”Image
+    [Header("系统关联")]
+        public FishingMiniGameManager FishingGameManager; // 拖入场景中的 FishMiniGameManager 对象
+        public FishingSpot CurrentFishingSpot; // （临时）拖入场景中的 FishingSpot 对象
+
     [Header("甜蜜点参数")]
-    [Tooltip("拖入你的 SweetSpot Image 对象")]
-    public RectTransform SweetSpotRect;
-    [Tooltip("甜蜜点左右移动的速度")]
-    public float SweetSpotMoveSpeed = 0.5f;
-    [Tooltip("甜蜜点的宽度，以进度条总宽度的百分比表示 (0到1之间)")]
-    [Range(0.1f, 0.9f)]
-    public float SweetSpotWidth = 0.25f;
-    public ParabolicPowerBarController PowerBarController; // 蓄力条控制器脚本
+        [Tooltip("完美抛竿时，提线反应的时间窗口(秒)")] 
+        public RectTransform SweetSpotRect;
+        [Tooltip("甜蜜点左右移动的速度")]
+        public float SweetSpotMoveSpeed = 0.5f;
+        [Tooltip("甜蜜点的宽度，以进度条总宽度的百分比表示 (0到1之间)")]
+        [Range(0.1f, 0.9f)]
+        public float SweetSpotWidth = 0.25f;//
+        public ParabolicPowerBarController PowerBarController; // 蓄力条控制器脚本
+    [Header("等待咬钩时间范围")]
+        [Tooltip("等待咬钩的最小和最大时间（秒）")]
+        public Vector2 WaitDurationRange = new Vector2(1.5f, 4.0f);
+    [Header("提线反应时间配置")]
+        [Tooltip("普通抛竿时，提线反应的时间窗口(秒)")]
+        public float NormalHookTime = 0.5f;
+        [Tooltip("完美抛竿时，提线反应的时间窗口(秒)")]
+        public float PerfectHookTime = 1.5f;
     #endregion 公有变量
     #region 私有变量
     private enum GameplayState
@@ -36,9 +50,14 @@ public class CastingAndHookingController : MonoBehaviour
     {
         // 初始状态下，整个UI是隐藏的
         CastingAndHookingPanel.SetActive(false);
+        if (HookIcon != null) 
+        {
+            HookIcon.gameObject.SetActive(false);
+        }
         _currentState = GameplayState.Inactive;
-        // 【临时测试代码】游戏一开始直接进入抛竿，方便我们看到效果
-        // 等功能完成后可以删除这一行
+        //力度条清零
+        PowerBarController.ResetPowerBar();
+
         StartCastingProcess();
     }
 
@@ -88,6 +107,17 @@ public class CastingAndHookingController : MonoBehaviour
 
         _currentState = newState;// 更新当前状态
         Debug.Log("状态切换为: " + _currentState); // 打印日志方便我们调试
+
+        // --- 状态切换时的“一次性”逻辑 ---
+        if (_currentState == GameplayState.WaitingForBite)
+        {
+            // 当进入“等待咬钩”状态时，启动等待协程
+            StartCoroutine(WaitingForBiteCoroutine());
+        }
+        else if (_currentState == GameplayState.Hooking)
+        {
+            StartCoroutine(HookingCoroutine());
+        }
     }
 
     private void HandleReadyToCastState()
@@ -101,41 +131,41 @@ public class CastingAndHookingController : MonoBehaviour
             ChangeState(GameplayState.Casting);
         }
     }
-private void HandleCastingState()//处理蓄力状态
-{
-    // 在蓄力状态下，每一帧都驱动甜蜜点移动
-    HandleSweetSpotMovement();
-
-    // 当玩家“松开”鼠标左键的瞬间
-    if (Input.GetMouseButtonUp(0))
+    private void HandleCastingState()//处理蓄力状态
     {
-        // 命令“专业工具”停止蓄力
-        PowerBarController.StopCharging(); 
-        // 从“专业工具”那里获取最终的蓄力结果
-        float finalPowerValue = PowerBarController.PowerBarSlider.value;
-        Debug.Log("获取到最终蓄力值: " + finalPowerValue);
+        // 在蓄力状态下，每一帧都驱动甜蜜点移动
+        HandleSweetSpotMovement();
 
-        // ---【甜蜜点判定逻辑】---
-        // 1. 直接从 RectTransform 的锚点获取归一化的边界
-        float sweetSpotMin = SweetSpotRect.anchorMin.x;
-        float sweetSpotMax = SweetSpotRect.anchorMax.x;
+        // 当玩家“松开”鼠标左键的瞬间
+        if (Input.GetMouseButtonUp(0))
+        {
+            // 命令“专业工具”停止蓄力
+            PowerBarController.StopCharging();
+            // 从“专业工具”那里获取最终的蓄力结果
+            float finalPowerValue = PowerBarController.PowerBarSlider.value;
+            Debug.Log("获取到最终蓄力值: " + finalPowerValue);
 
-        // 2. 判断力度条的值是否在边界内
-        if (finalPowerValue >= sweetSpotMin && finalPowerValue <= sweetSpotMax)
-        {
-            _isPerfectCast = true;
-            Debug.Log("完美抛竿 (Perfect Cast)!");
+            // ---【甜蜜点判定逻辑】---
+            // 1. 直接从 RectTransform 的锚点获取归一化的边界
+            float sweetSpotMin = SweetSpotRect.anchorMin.x;
+            float sweetSpotMax = SweetSpotRect.anchorMax.x;
+
+            // 2. 判断力度条的值是否在边界内
+            if (finalPowerValue >= sweetSpotMin && finalPowerValue <= sweetSpotMax)
+            {
+                _isPerfectCast = true;
+                Debug.Log("完美抛竿 (Perfect Cast)!");
+            }
+            else
+            {
+                _isPerfectCast = false;
+                Debug.Log("普通抛竿 (Normal Cast)");
+            }
+
+            // 3. 切换到等待咬钩状态
+            ChangeState(GameplayState.WaitingForBite);
         }
-        else
-        {
-            _isPerfectCast = false;
-            Debug.Log("普通抛竿 (Normal Cast)");
-        }
-        
-        // 3. 切换到等待咬钩状态
-        ChangeState(GameplayState.WaitingForBite);
     }
-}
     private void HandleSweetSpotMovement()
     {
         // 1. 使用PingPong函数计算出甜蜜点“左边界”的归一化位置 (值在 0 和 1-SweetSpotWidth 之间)
@@ -149,6 +179,87 @@ private void HandleCastingState()//处理蓄力状态
         // 3. [重要!] 当完全用anchors控制UI时，最好将offset归零，以避免任何意外偏移。
         SweetSpotRect.offsetMin = Vector2.zero;
         SweetSpotRect.offsetMax = Vector2.zero;
+    }
+    private System.Collections.IEnumerator WaitingForBiteCoroutine()//等待咬钩协程
+    {
+        // 1. 在我们设定的范围内，随机一个等待时间
+        float waitTime = Random.Range(WaitDurationRange.x, WaitDurationRange.y);
+        Debug.Log($"鱼将在 {waitTime:F2} 秒后咬钩...");
+
+        // 2. 使用 yield return 等待指定的时间
+        yield return new WaitForSeconds(waitTime);
+
+        // 3. 时间到，切换到提线反应状态
+        ChangeState(GameplayState.Hooking);
+    }
+        private System.Collections.IEnumerator HookingCoroutine()//提线反应协程
+    {
+        // --- 1. 初始化 ---
+        // 根据是否“完美抛竿”来决定总时长
+        float duration = _isPerfectCast ? PerfectHookTime : NormalHookTime;
+        Debug.Log($"提线窗口: {duration:F2} 秒，完美抛竿: {_isPerfectCast}");
+
+        // 激活感叹号，并重置其状态
+        HookIcon.gameObject.SetActive(true);
+        CanvasGroup hookCanvasGroup = HookIcon.GetComponent<CanvasGroup>();
+        hookCanvasGroup.alpha = 1f; // 完全不透明
+        HookIcon.rectTransform.localScale = Vector3.one; // 原始大小
+
+        // --- 2. 核心循环：等待玩家输入或计时结束 ---
+        float elapsedTime = 0f;
+        bool caughtInTime = false;
+
+        while (elapsedTime < duration)
+        {
+            // 检查玩家是否点击
+            if (Input.GetMouseButtonDown(0))
+            {
+                Debug.Log("玩家在规定时间内点击！");
+                caughtInTime = true;
+                break; // 玩家已点击，立即跳出循环
+            }
+
+            // --- 3. 动画处理 ---
+            // 计算当前进度 (从0到1)
+            float progress = elapsedTime / duration;
+
+            // 根据进度，平滑地修改透明度和大小
+            // Alpha 从 1 (不透明) -> 0 (透明)
+            hookCanvasGroup.alpha = Mathf.Lerp(1f, 0f, progress);
+            // Scale 从 1 (原始大小) -> 0.1 (很小)
+            HookIcon.rectTransform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * 0.1f, progress);
+
+            // 时间累加，并等待下一帧
+            elapsedTime += Time.deltaTime;
+            yield return null; // yield return null 表示“等待到下一帧再继续执行”
+        }
+
+        // --- 4. 结果处理 ---
+    // 无论循环是因为时间到还是因为被break，都先隐藏感叹号
+    HookIcon.gameObject.SetActive(false);
+
+    // --- ▼▼▼ 请用以下代码替换旧的 if/else 逻辑 ▼▼▼ ---
+    if (caughtInTime)
+    {
+        Debug.Log("提线成功！启动“与鱼博弈”小游戏！");
+        
+        // 【核心连接代码】
+        // 1. 命令 FishingMiniGameManager 开始小游戏 
+        FishingGameManager.StartMiniGame(CurrentFishingSpot); 
+        
+        // 2. 隐藏当前的“抛竿”UI
+        CastingAndHookingPanel.SetActive(false);
+
+        // 3. 将自身状态切换为“成功”，等待下一次被调用
+        ChangeState(GameplayState.Success);
+    }
+    else
+    {
+        Debug.Log("太慢了，鱼跑掉了！");
+        // 失败后，回到可以重新开始抛竿的状态
+        StartCastingProcess(); 
+    }
+    // --- ▲▲▲ 替换完成 ▲▲▲ ---
     }
     #endregion 私有方法
 }

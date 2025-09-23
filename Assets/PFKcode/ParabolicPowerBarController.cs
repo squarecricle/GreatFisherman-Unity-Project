@@ -39,7 +39,7 @@ public class ParabolicPowerBarController : MonoBehaviour//力度条进度条变�
     /// <summary>
     /// 停止蓄力（方法）
     /// </summary>
-    public void StopCharging()
+    public void StopCharging()//停止蓄力
     {
         if (!_isCharging) return;// 如果没有在蓄力，直接返回
 
@@ -47,10 +47,17 @@ public class ParabolicPowerBarController : MonoBehaviour//力度条进度条变�
         Debug.Log($"蓄力结束！最终值为: {PowerBarSlider.value}");
     }
 
+    public void ResetPowerBar()//重置力度条
+        {
+            if (PowerBarSlider != null)
+            {
+                PowerBarSlider.value = 0f;
+            }
+        }
     /// <summary>
     /// 核心：更新力度条的数值
     /// </summary>
-    private void UpdatePowerBar()
+    private void UpdatePowerBar()//更新力度条
     {
         // 1. 计时器按固定速度累加
         _timer += Time.deltaTime;

@@ -15,7 +15,7 @@ public class FishingMiniGameManager : MonoBehaviour
     public TextMeshProUGUI ResultStatusText; // 把 Text 修改为 TextMeshProUGUI
     public PlayerBarController PlayerBarController; // 玩家控制的绿条脚本
     public Button CloseMiniGameButton;          // 开始按钮
-    public FishController FishIconController; // 鱼的图标脚本
+    public FishController FishController; // 鱼的图标脚本
     public enum GameState// 我们用一个公开的枚举来定义所有可能的游戏状态 
     {
         NotStarted, // 还未开始
@@ -110,8 +110,8 @@ public class FishingMiniGameManager : MonoBehaviour
         _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
         PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
         // 初始化鱼的位置
-        FishIconController.Initialize(CurrentFishData, _fishingAreaHeight); // <--- 初始化鱼
-        FishIconController.StartBehavior(); 
+        FishController.Initialize(CurrentFishData, _fishingAreaHeight); // <--- 初始化鱼
+        FishController.StartBehavior(); 
 
     }
 
@@ -174,8 +174,8 @@ public class FishingMiniGameManager : MonoBehaviour
     {
         float playerBarTop = PlayerBar.anchoredPosition.y + PlayerBar.rect.height / 2;
         float playerBarBottom = PlayerBar.anchoredPosition.y - PlayerBar.rect.height / 2;
-        float fishTop = FishIconController.TopY;
-        float fishBottom = FishIconController.BottomY;
+        float fishTop = FishController.TopY;
+        float fishBottom = FishController.BottomY;
         // 如果绿条的顶部在鱼的底部之上，或者绿条的底部在鱼的顶部之下，则没有重叠
         // 所以反过来，就是重叠了
         return playerBarTop > fishBottom && playerBarBottom < fishTop;
@@ -216,7 +216,7 @@ public class FishingMiniGameManager : MonoBehaviour
         MiniGamePanel.SetActive(false);//隐藏钓鱼UI
         ResultStatusText.gameObject.SetActive(true);//显示结果文本
         CloseMiniGameButton.gameObject.SetActive(true);//显示关闭按钮
-        FishIconController.StopBehavior();
+        FishController.StopBehavior();
         StopAllCoroutines(); // 停止鱼的移动协程
     }
         /// <summary>

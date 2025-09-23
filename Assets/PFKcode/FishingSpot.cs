@@ -6,25 +6,25 @@ public class FishingSpot : MonoBehaviour
     [Header("系统关联")]
     public FishingMiniGameManager FishingGameManager;
     public GameObject StartFishingButton; 
-
+    public CastingAndHookingController CastingController; // 新增对抛竿控制器的引用
     [Header("鱼池配置")]
     public List<FishData> FishPool;
 
     // 这个方法是我们整个系统的入口
-    public void StartFishing()
+        public void StartFishing()
     {
-        if (FishingGameManager == null || FishPool == null || FishPool.Count == 0)
+        // 检查必要的组件是否都已关联
+        if (CastingController == null || FishPool == null || FishPool.Count == 0)
         {
-            Debug.LogError("FishingSpot 配置不完整!");
+            Debug.LogError("FishingSpot 配置不完整! 请检查 CastingController 和 FishPool。");
             return;
         }
 
+        // 隐藏“开始钓鱼”按钮
         StartFishingButton.SetActive(false);
-        
-        // --- 核心产出逻辑 V2.0 - 带权重随机选择 ---
-        FishData selectedFish = SelectFishByWeight();
 
-        // 如果因为某些原因（比如鱼池是空的）没选出鱼，就安全退出
+        // --- 核心产出逻辑 (这部分不变) ---
+        FishData selectedFish = SelectFishByWeight();
         if (selectedFish == null)
         {
             Debug.LogError("未能根据权重选出任何鱼！请检查鱼池配置。");
@@ -32,11 +32,14 @@ public class FishingSpot : MonoBehaviour
             return;
         }
 
+        // --- 流程衔接修改 ---
+        // 1. 将选中的鱼的数据，传递给 FishingMiniGameManager（它需要提前知道一会要跟谁博弈）
         FishingGameManager.CurrentFishData = selectedFish;
-        FishingGameManager.StartMiniGame(this); 
-        
-        // 这条日志现在非常有用，可以帮我们验证权重是否生效
-        Debug.Log($"一条 {selectedFish.Rarity} 品质的鱼 '{selectedFish.FishName}' 上钩了!");
+
+        // 2. 启动“抛竿与上钩”流程，而不是直接启动小游戏
+        CastingController.StartCastingProcess();
+
+        Debug.Log($"一条 {selectedFish.Rarity} 品质的鱼 '{selectedFish.FishName}' 准备上钩!");
     }
 
     /// <summary>
