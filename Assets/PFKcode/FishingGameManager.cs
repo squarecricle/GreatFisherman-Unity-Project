@@ -43,79 +43,19 @@ public class FishingMiniGameManager : MonoBehaviour
     private bool _isCurrentlyOverlapping; // (状态追踪器) 记录“上一帧”是否在重叠
     private FishingSpot _currentSpot; // (新增) 用来“记住”是哪个钓鱼点启动了我们    
     #endregion
-    #region 私有函数
-    private float CalculateFishLength(FishQuality quality)
-    {
-        // 根据品质，从 currentFishData 中选择对应的长度范围
-        Vector2 lengthRange;
-        switch (quality)
-        {
-            case FishQuality.吹牛资本:
-                lengthRange = CurrentFishData.LengthRangeChuiNiuZiBen;
-                break;
-            case FishQuality.史诗对决:
-                lengthRange = CurrentFishData.LengthRangeShiShiDuiJue;
-                break;
-            case FishQuality.像模像样:
-                lengthRange = CurrentFishData.LengthRangeXiangMoXiangYang;
-                break;
-            default: // 默认情况，包括 "勉强上钩"
-                lengthRange = CurrentFishData.LengthRangeMianQiang;
-                break;
-        }
+    #region unity回调函数
 
-        // 在选定的范围内，生成一个随机的长度值
-        return Random.Range(lengthRange.x, lengthRange.y);
-    }
-
-
-
-    #endregion
-        void Start()
+    void Start()
     {
         CurrentMiniGameState = GameState.NotStarted;
 
         // 初始状态下，隐藏所有相关UI
         MiniGamePanel.SetActive(false);
         ResultStatusText.gameObject.SetActive(false);
-       
-    }
-
-    public void StartMiniGame(FishingSpot spot)
-    {
-        _currentSpot = spot; // <--- 添加这一行，把传进来的spot存起来
-        //防止忘记在Inspector里拖拽currentFishData导致报错
-        if (CurrentFishData == null)
-        {
-            Debug.LogError("错误：currentFishData 未设置！无法开始游戏。");
-            return; // 直接退出，不执行后续代码
-        }
-        // 先激活设置对象的显示
-        MiniGamePanel.SetActive(true);
-        ProgressBar.gameObject.SetActive(true);
-        PlayerBar.gameObject.SetActive(true);
-        FishController.gameObject.SetActive(true);
-        // 再初始化游戏状态
-        CurrentMiniGameState = GameState.InProgress;
-        ProgressBar.value = 0.25f; // 设置初始进度
-        StopAllCoroutines();//这可以防止在快速连续开始/结束游戏时，有旧的协程还在“游荡”。
-                            // 显示游戏UI，隐藏按钮和状态文本
-
-        _progressDropCount = 0;//重置脱钩次数
-        _isCurrentlyOverlapping = false; // 游戏开始时默认不在重叠区
-        
-        MiniGamePanel.SetActive(true);//显示钓鱼UI
-        CloseMiniGameButton.gameObject.SetActive(false);//隐藏开始按钮
-        ResultStatusText.gameObject.SetActive(false);//隐藏状态文本
-        FishController.gameObject.SetActive(true);//显示鱼
-        // 获取钓鱼区域的高度，用于计算边界
-        _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
-        PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
-        // 初始化鱼的位置
-        FishController.Initialize(CurrentFishData, _fishingAreaHeight); // <--- 初始化鱼
-        FishController.StartBehavior(); 
 
     }
+
+
 
     void Update()
     {
@@ -134,9 +74,108 @@ public class FishingMiniGameManager : MonoBehaviour
         }
     }
 
+    #endregion unity回调函数
+    #region 公有方法
+    public void OnResult_PutInBackpack()
+    {
+        // 1. 隐藏自己的结果UI
+        HideResultUI();
+        // 2. 向总管汇报，请求重新开始
+        TheGameFlowManager.RestartFishingProcess();
+    }
 
-    // 4. 更新进度条并判断输赢
-    void UpdateProgress()
+    /// <summary>
+    /// 当“主菜单”按钮被点击时调用
+    /// </summary>
+    public void OnResult_ReturnToMenu()
+    {
+        // 1. 隐藏自己的结果UI
+        HideResultUI();
+        // 2. 向总管汇报，请求回到主菜单
+        TheGameFlowManager.GoToMainMenu();
+    }
+
+    public void StartMiniGame(FishingSpot spot)
+    {
+        _currentSpot = spot; // <--- 添加这一行，把传进来的spot存起来
+        //防止忘记在Inspector里拖拽currentFishData导致报错
+        if (CurrentFishData == null)
+        {
+            Debug.LogError("错误：currentFishData 未设置！无法开始游戏。");
+            return; // 直接退出，不执行后续代码
+        }
+        // 先激活设置对象的显示
+        ShowGameplayUI();
+        // 再初始化游戏状态
+        CurrentMiniGameState = GameState.InProgress;
+        ProgressBar.value = 0.25f; // 设置初始进度
+        StopAllCoroutines();//这可以防止在快速连续开始/结束游戏时，有旧的协程还在“游荡”。
+                            // 显示游戏UI，隐藏按钮和状态文本
+
+        _progressDropCount = 0;//重置脱钩次数
+        _isCurrentlyOverlapping = false; // 游戏开始时默认不在重叠区
+
+        MiniGamePanel.SetActive(true);//显示钓鱼UI
+        CloseMiniGameButton.gameObject.SetActive(false);//隐藏开始按钮
+        ResultStatusText.gameObject.SetActive(false);//隐藏状态文本
+        FishController.gameObject.SetActive(true);//显示鱼
+        // 获取钓鱼区域的高度，用于计算边界
+        _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
+        PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
+        // 初始化鱼的位置
+        FishController.Initialize(CurrentFishData, _fishingAreaHeight); // <--- 初始化鱼
+        FishController.StartBehavior();
+
+    }
+    #endregion 公有方法
+    #region 私有方法
+    private void EndMiniGame(bool success)//结束博弈游戏
+    {
+        CurrentMiniGameState = success ? GameState.Success : GameState.Failed;
+
+        // （这部分显示结果文本的逻辑不变）
+        if (success)
+        {
+            // 1. 先进行品质审判
+            FishQuality finalQuality;
+            if (_progressDropCount == 0) finalQuality = FishQuality.吹牛资本;
+            else if (_progressDropCount == 1) finalQuality = FishQuality.史诗对决;
+            else if (_progressDropCount == 2) finalQuality = FishQuality.像模像样;
+            else finalQuality = FishQuality.勉强上钩;
+
+            // 2. 计算最终长度
+            float finalLength = CalculateFishLength(finalQuality);
+
+            // 3. 创建并打包标准化的“渔获报告” (这里是修正后的完整代码)
+            CatchResult result = new CatchResult
+            {
+                FishedData = CurrentFishData,
+                FishedQuality = finalQuality,
+                Length = finalLength
+            };
+
+            // 4. 显示结果
+            ResultStatusText.text = $"成功!\n品质: {result.FishedQuality}\n长度: {result.Length:F2} cm";
+            Debug.Log($"渔获报告 - 鱼: {result.FishedData.FishName}, 品质: {result.FishedQuality}, 长度: {result.Length:F2} cm");
+        }
+        else
+        {
+            ResultStatusText.text = "失败!";
+        }
+
+        // --- 核心修改 ---
+        // 停止所有游戏内活动
+        FishController.StopBehavior();
+        StopAllCoroutines();
+        ProgressBar.gameObject.SetActive(false);
+        PlayerBar.gameObject.SetActive(false);
+        FishController.gameObject.SetActive(false);
+        // 显示结果文本和两个新按钮
+        ResultStatusText.gameObject.SetActive(true);
+        PutInBackpackButton.gameObject.SetActive(true);
+        ReturnToMenuButton.gameObject.SetActive(true);
+    }
+    private void UpdateProgress()//更新进度条
     {
         bool isOverlappingNow = IsOverlapping();//使用重叠判断函数判断这一帧重叠情况
 
@@ -171,8 +210,7 @@ public class FishingMiniGameManager : MonoBehaviour
             EndMiniGame(false);
         }
     }
-    // 检查绿条和鱼是否重叠
-    bool IsOverlapping()
+    private bool IsOverlapping()    // 检查绿条和鱼是否重叠
     {
         float playerBarTop = PlayerBar.anchoredPosition.y + PlayerBar.rect.height / 2;
         float playerBarBottom = PlayerBar.anchoredPosition.y - PlayerBar.rect.height / 2;
@@ -182,94 +220,56 @@ public class FishingMiniGameManager : MonoBehaviour
         // 所以反过来，就是重叠了
         return playerBarTop > fishBottom && playerBarBottom < fishTop;
     }
-
-    void EndMiniGame(bool success)
+    private float CalculateFishLength(FishQuality quality)
     {
-        CurrentMiniGameState = success ? GameState.Success : GameState.Failed;
-        
-        // （这部分显示结果文本的逻辑不变）
-        if (success)
+        // 根据品质，从 currentFishData 中选择对应的长度范围
+        Vector2 lengthRange;
+        switch (quality)
         {
-        // 1. 先进行品质审判
-        FishQuality finalQuality;
-        if (_progressDropCount == 0) finalQuality = FishQuality.吹牛资本;
-        else if (_progressDropCount == 1) finalQuality = FishQuality.史诗对决;
-        else if (_progressDropCount == 2) finalQuality = FishQuality.像模像样;
-        else finalQuality = FishQuality.勉强上钩;
-        
-        // 2. 计算最终长度
-        float finalLength = CalculateFishLength(finalQuality);
-        
-        // 3. 创建并打包标准化的“渔获报告” (这里是修正后的完整代码)
-        CatchResult result = new CatchResult
-        {
-            FishedData = CurrentFishData,
-            FishedQuality = finalQuality,
-            Length = finalLength
-        };
-        
-        // 4. 显示结果
-        ResultStatusText.text = $"成功!\n品质: {result.FishedQuality}\n长度: {result.Length:F2} cm";
-        Debug.Log($"渔获报告 - 鱼: {result.FishedData.FishName}, 品质: {result. FishedQuality}, 长度: {result.Length:F2} cm");
-        }
-        else
-        {
-            ResultStatusText.text = "失败!";
+            case FishQuality.吹牛资本:
+                lengthRange = CurrentFishData.LengthRangeChuiNiuZiBen;
+                break;
+            case FishQuality.史诗对决:
+                lengthRange = CurrentFishData.LengthRangeShiShiDuiJue;
+                break;
+            case FishQuality.像模像样:
+                lengthRange = CurrentFishData.LengthRangeXiangMoXiangYang;
+                break;
+            default: // 默认情况，包括 "勉强上钩"
+                lengthRange = CurrentFishData.LengthRangeMianQiang;
+                break;
         }
 
-        // --- 核心修改 ---
-        // 停止所有游戏内活动
-        FishController.StopBehavior();
-        StopAllCoroutines(); 
-        ProgressBar.gameObject.SetActive(false);
-        PlayerBar.gameObject.SetActive(false);
-        FishController.gameObject.SetActive(false);
-        // 显示结果文本和两个新按钮
-        ResultStatusText.gameObject.SetActive(true);
-        PutInBackpackButton.gameObject.SetActive(true);
-        ReturnToMenuButton.gameObject.SetActive(true);
+        // 在选定的范围内，生成一个随机的长度值
+        return Random.Range(lengthRange.x, lengthRange.y);
     }
-        /// <summary>
-        /// 标准化的渔获报告，用于封装一次钓鱼的最终结果
-        /// </summary>
-        public struct CatchResult //我们用一个结构体来封装钓鱼结果
-        {
-            public FishData FishedData; // 钓上来的鱼的原始数据
-            public FishingMiniGameManager.FishQuality FishedQuality; // 成品鱼品质    
-            public float Length; // 根据品质计算出的最终长度
-        }    
-
-    /// <summary>
-    /// 当“放入背包”按钮被点击时调用
-    /// </summary>
-    public void OnResult_PutInBackpack()
-    {
-        // 1. 隐藏自己的结果UI
-        HideResultUI();
-        // 2. 向总管汇报，请求重新开始
-        TheGameFlowManager.RestartFishingProcess();
-    }
-
-    /// <summary>
-    /// 当“主菜单”按钮被点击时调用
-    /// </summary>
-    public void OnResult_ReturnToMenu()
-    {
-        // 1. 隐藏自己的结果UI
-        HideResultUI();
-        // 2. 向总管汇报，请求回到主菜单
-        TheGameFlowManager.GoToMainMenu();
-    }
-
-    // 新增一个私有辅助方法，避免代码重复
-    private void HideResultUI()
+    private void HideResultUI()//隐藏结果界面相关UI
     {
         ResultStatusText.gameObject.SetActive(false);
         PutInBackpackButton.gameObject.SetActive(false);
         ReturnToMenuButton.gameObject.SetActive(false);
-        if (MiniGamePanel != null)//确保不为null再隐藏
-        {
-            MiniGamePanel.SetActive(false);
-        }    
+        HideGameplayUI();
+    }
+    private void ShowGameplayUI()//显示博弈玩法相关UI
+    {
+        if (MiniGamePanel != null) MiniGamePanel.SetActive(true);
+        if (ProgressBar != null) ProgressBar.gameObject.SetActive(true);
+        if (PlayerBar != null) PlayerBar.gameObject.SetActive(true);
+        if (FishController != null) FishController.gameObject.SetActive(true);
+    }
+    private void HideGameplayUI()//隐藏博弈玩法相关UI
+    {
+        // 这里我们直接隐藏父级容器，效率更高，也更安全
+        // 子对象（进度条、玩家条等）会自动被隐藏
+        if (MiniGamePanel != null) MiniGamePanel.SetActive(false);
+    }
+    
+    #endregion 私有方法
+
+    public struct CatchResult //我们用一个结构体来封装钓鱼结果
+    {
+        public FishData FishedData; // 钓上来的鱼的原始数据
+        public FishingMiniGameManager.FishQuality FishedQuality; // 成品鱼品质    
+        public float Length; // 根据品质计算出的最终长度
     }
 }
