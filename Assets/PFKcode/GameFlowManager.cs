@@ -53,6 +53,11 @@ public class GameFlowManager : MonoBehaviour
         PrepareToFish(BeachSpot, "沙滩");
     }
 
+    public void RestartFishingProcess()//重新开始钓鱼流程
+    {
+        // 重新开始抛竿流程
+        CastingController.StartCastingProcess();
+    }
     // 我们把重复的逻辑抽出来，放到一个私有方法里
     private void PrepareToFish(FishingSpot spot, string spotName)
     {

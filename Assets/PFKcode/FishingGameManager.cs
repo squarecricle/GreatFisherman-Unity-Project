@@ -9,6 +9,7 @@ public class FishingMiniGameManager : MonoBehaviour
     [Header("当前鱼的数据")]
     public FishData CurrentFishData;
     [Header("游戏对象关联")]
+    public GameFlowManager TheGameFlowManager;
     public GameObject MiniGamePanel; // 整个钓鱼游戏UI的容器
     public Slider ProgressBar;          // 进度条
     public RectTransform PlayerBar;     // 玩家控制的绿条
@@ -25,9 +26,10 @@ public class FishingMiniGameManager : MonoBehaviour
     }
     public GameState CurrentMiniGameState; // 创建一个变量来存储当前的状态
     public enum FishQuality { 吹牛资本, 史诗对决, 像模像样, 勉强上钩 }
-
+    [Header("结果界面按钮")]
+    public Button PutInBackpackButton; // 新增：“放入背包”按钮
+    public Button ReturnToMenuButton;  // 新增：“主菜单”按钮
     [Header("游戏参数 - 可在Inspector中调整")]
-
 
     public float ProgressIncreaseRate = 0.2f; // 进度条增长速率
     public float ProgressDecreaseRate = 0.1f; // 进度条衰减速率
@@ -76,10 +78,6 @@ public class FishingMiniGameManager : MonoBehaviour
         // 初始状态下，隐藏所有相关UI
         MiniGamePanel.SetActive(false);
         ResultStatusText.gameObject.SetActive(false);
-        
-        CloseMiniGameButton.onClick.AddListener(CloseMiniGame); // <--- 必须添加这一行！
-
-        CloseMiniGameButton.gameObject.SetActive(false); 
        
     }
 
@@ -184,40 +182,48 @@ public class FishingMiniGameManager : MonoBehaviour
     void EndMiniGame(bool success)
     {
         CurrentMiniGameState = success ? GameState.Success : GameState.Failed;
-        // 根据游戏结果，设置不同的结束状态
+        
+        // （这部分显示结果文本的逻辑不变）
         if (success)
         {
-            // 1. 先进行品质审判
-            FishQuality finalQuality;//最终品质
-            if (_progressDropCount == 0)finalQuality = FishQuality.吹牛资本;
-            else if (_progressDropCount == 1)finalQuality = FishQuality.史诗对决;
-            else if (_progressDropCount == 2) finalQuality = FishQuality.像模像样;
-            else finalQuality = FishQuality.勉强上钩;
-            // 2. 计算最终长度
-            float finalLength = CalculateFishLength(finalQuality);
-            // 3. 创建并打包标准化的“渔获报告”
-            CatchResult result = new CatchResult
-            {
-                FishedData = CurrentFishData,
-                FishedQuality = finalQuality,
-                Length = finalLength
-            };
-            // 4. 显示结果
-            ResultStatusText.text = $"成功!\n品质: {result.FishedQuality}\n长度: {result.Length:F2} cm"; // 使用了字符串插值和格式化
-            Debug.Log($"渔获报告 - 鱼: {result.FishedData.FishName}, 品质: {result. FishedQuality}, 长度: {result.Length:F2} cm");
+        // 1. 先进行品质审判
+        FishQuality finalQuality;
+        if (_progressDropCount == 0) finalQuality = FishQuality.吹牛资本;
+        else if (_progressDropCount == 1) finalQuality = FishQuality.史诗对决;
+        else if (_progressDropCount == 2) finalQuality = FishQuality.像模像样;
+        else finalQuality = FishQuality.勉强上钩;
+        
+        // 2. 计算最终长度
+        float finalLength = CalculateFishLength(finalQuality);
+        
+        // 3. 创建并打包标准化的“渔获报告” (这里是修正后的完整代码)
+        CatchResult result = new CatchResult
+        {
+            FishedData = CurrentFishData,
+            FishedQuality = finalQuality,
+            Length = finalLength
+        };
+        
+        // 4. 显示结果
+        ResultStatusText.text = $"成功!\n品质: {result.FishedQuality}\n长度: {result.Length:F2} cm";
+        Debug.Log($"渔获报告 - 鱼: {result.FishedData.FishName}, 品质: {result. FishedQuality}, 长度: {result.Length:F2} cm");
         }
         else
         {
             ResultStatusText.text = "失败!";
         }
 
-
-        // 显示结果，隐藏游戏UI，显示按钮和状态文本
-        MiniGamePanel.SetActive(false);//隐藏钓鱼UI
-        ResultStatusText.gameObject.SetActive(true);//显示结果文本
-        CloseMiniGameButton.gameObject.SetActive(true);//显示关闭按钮
+        // --- 核心修改 ---
+        // 停止所有游戏内活动
         FishController.StopBehavior();
-        StopAllCoroutines(); // 停止鱼的移动协程
+        StopAllCoroutines(); 
+        ProgressBar.gameObject.SetActive(false);
+        PlayerBar.gameObject.SetActive(false);
+        FishController.gameObject.SetActive(false);
+        // 显示结果文本和两个新按钮
+        ResultStatusText.gameObject.SetActive(true);
+        PutInBackpackButton.gameObject.SetActive(true);
+        ReturnToMenuButton.gameObject.SetActive(true);
     }
         /// <summary>
         /// 标准化的渔获报告，用于封装一次钓鱼的最终结果
@@ -229,18 +235,33 @@ public class FishingMiniGameManager : MonoBehaviour
             public float Length; // 根据品质计算出的最终长度
         }    
 
-        // 添加关闭小游戏的方法
-    private void CloseMiniGame() // (最好也把它改成private，因为它只应该由按钮在内部调用)
+    /// <summary>
+    /// 当“放入背包”按钮被点击时调用
+    /// </summary>
+    public void OnResult_PutInBackpack()
     {
-        // 隐藏所有UI元素
-        ResultStatusText.gameObject.SetActive(false);
-        CloseMiniGameButton.gameObject.SetActive(false);
-        CurrentMiniGameState = GameState.NotStarted;
+        // 1. 隐藏自己的结果UI
+        HideResultUI();
+        // 2. 向总管汇报，请求重新开始
+        TheGameFlowManager.RestartFishingProcess();
+    }
 
-        // 通过之前保存的 _currentSpot，调用它的回调方法，让“开始钓鱼”按钮回来
-        if (_currentSpot != null)
-        {
-            _currentSpot.OnFishingSessionEnd();
-        }
+    /// <summary>
+    /// 当“主菜单”按钮被点击时调用
+    /// </summary>
+    public void OnResult_ReturnToMenu()
+    {
+        // 1. 隐藏自己的结果UI
+        HideResultUI();
+        // 2. 向总管汇报，请求回到主菜单
+        TheGameFlowManager.GoToMainMenu();
+    }
+
+    // 新增一个私有辅助方法，避免代码重复
+    private void HideResultUI()
+    {
+        ResultStatusText.gameObject.SetActive(false);
+        PutInBackpackButton.gameObject.SetActive(false);
+        ReturnToMenuButton.gameObject.SetActive(false);
     }
 }

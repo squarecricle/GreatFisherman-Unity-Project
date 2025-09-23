@@ -1,9 +1,17 @@
 fileFormatVersion: 2
-guid: 595c3646f00db8c4498e4e0be0df0478
+guid: dd1a16ce8a985874cb11ad65d82b9fd3
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - CurrentFishData: {fileID: 11400000, guid: dc56f1cd522666e479cfb07d26078ff5, type: 2}
+  - MiniGamePanel: {instanceID: 0}
+  - ProgressBar: {instanceID: 0}
+  - PlayerBar: {instanceID: 0}
+  - ResultStatusText: {instanceID: 0}
+  - PlayerBarController: {instanceID: 0}
+  - CloseMiniGameButton: {instanceID: 0}
+  - FishController: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
