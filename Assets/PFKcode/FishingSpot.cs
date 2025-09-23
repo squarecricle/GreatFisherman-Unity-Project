@@ -36,7 +36,7 @@ public class FishingSpot : MonoBehaviour
         // 1. 将选中的鱼的数据，传递给 FishingMiniGameManager（它需要提前知道一会要跟谁博弈）
         FishingGameManager.CurrentFishData = selectedFish;
 
-        // 2. 启动“抛竿与上钩”流程，而不是直接启动小游戏
+        // 2.
         CastingController.StartCastingProcess();
 
         Debug.Log($"一条 {selectedFish.Rarity} 品质的鱼 '{selectedFish.FishName}' 准备上钩!");

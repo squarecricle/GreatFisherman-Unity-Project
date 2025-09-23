@@ -43,7 +43,7 @@ public class CastingAndHookingController : MonoBehaviour
     }
     private GameplayState _currentState; // 存储当前所处的状态
     private bool _isPerfectCast; // 用于记录本次抛竿是否为“完美抛竿”
-
+    private float _sweetSpotTimer; // 【新增】甜蜜点的专属计时器
     #endregion 私有变量
 
     void Start()
@@ -96,7 +96,10 @@ public class CastingAndHookingController : MonoBehaviour
         PowerBarController.ResetPowerBar();//重置力度条 
         CastingAndHookingPanel.SetActive(true);//显示钓鱼UI
         ChangeState(GameplayState.ReadyToCast);//切换到准备抛竿状态
-
+        if (SweetSpotRect != null)//确保开始时甜蜜点是隐藏的
+        {
+            SweetSpotRect.gameObject.SetActive(false);
+        }    
     }
 
     #endregion
@@ -125,7 +128,13 @@ public class CastingAndHookingController : MonoBehaviour
         // 在准备状态下，我们只等待玩家按下鼠标                
         if (Input.GetMouseButtonDown(0))
         {
-            // 捕获到按下的瞬间，立即命令工具开始蓄力            
+            if (SweetSpotRect != null)
+            {
+                SweetSpotRect.gameObject.SetActive(true);
+            }
+            _sweetSpotTimer = 0f;
+            // 捕获到按下的瞬间，立即命令工具开始蓄力 
+            HandleSweetSpotMovement(); // 确保甜蜜点位置初始化正确           
             PowerBarController.StartCharging();
             // 然后立刻切换到“正在蓄力”状态                      
             ChangeState(GameplayState.Casting);
@@ -161,17 +170,22 @@ public class CastingAndHookingController : MonoBehaviour
                 _isPerfectCast = false;
                 Debug.Log("普通抛竿 (Normal Cast)");
             }
-
+            // 3. 隐藏甜蜜点
+            if (SweetSpotRect != null)
+            {
+                SweetSpotRect.gameObject.SetActive(false);
+            }
             // 3. 切换到等待咬钩状态
             ChangeState(GameplayState.WaitingForBite);
         }
     }
     private void HandleSweetSpotMovement()
     {
+        _sweetSpotTimer += Time.deltaTime;//使用专属计时器
+
         // 1. 使用PingPong函数计算出甜蜜点“左边界”的归一化位置 (值在 0 和 1-SweetSpotWidth 之间)
         //    这确保了甜蜜点的右边界不会超出进度条的100%范围
-        float leftEdgePosition = Mathf.PingPong(Time.time * SweetSpotMoveSpeed, 1 - SweetSpotWidth);
-
+        float leftEdgePosition = Mathf.PingPong(_sweetSpotTimer * SweetSpotMoveSpeed, 1 - SweetSpotWidth);  
         // 2. 直接根据计算出的左边界位置，来更新左右两个锚点的x坐标
         SweetSpotRect.anchorMin = new Vector2(leftEdgePosition, SweetSpotRect.anchorMin.y);
         SweetSpotRect.anchorMax = new Vector2(leftEdgePosition + SweetSpotWidth, SweetSpotRect.anchorMax.y);

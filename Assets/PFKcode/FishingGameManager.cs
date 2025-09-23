@@ -90,8 +90,12 @@ public class FishingMiniGameManager : MonoBehaviour
             Debug.LogError("错误：currentFishData 未设置！无法开始游戏。");
             return; // 直接退出，不执行后续代码
         }
-
-        // 初始化游戏状态
+        // 先激活设置对象的显示
+        MiniGamePanel.SetActive(true);
+        ProgressBar.gameObject.SetActive(true);
+        PlayerBar.gameObject.SetActive(true);
+        FishController.gameObject.SetActive(true);
+        // 再初始化游戏状态
         CurrentMiniGameState = GameState.InProgress;
         ProgressBar.value = 0.25f; // 设置初始进度
         StopAllCoroutines();//这可以防止在快速连续开始/结束游戏时，有旧的协程还在“游荡”。
@@ -99,11 +103,11 @@ public class FishingMiniGameManager : MonoBehaviour
 
         _progressDropCount = 0;//重置脱钩次数
         _isCurrentlyOverlapping = false; // 游戏开始时默认不在重叠区
-
-        MiniGamePanel.SetActive(true);
-        CloseMiniGameButton.gameObject.SetActive(false);
-        ResultStatusText.gameObject.SetActive(false);
-
+        
+        MiniGamePanel.SetActive(true);//显示钓鱼UI
+        CloseMiniGameButton.gameObject.SetActive(false);//隐藏开始按钮
+        ResultStatusText.gameObject.SetActive(false);//隐藏状态文本
+        FishController.gameObject.SetActive(true);//显示鱼
         // 获取钓鱼区域的高度，用于计算边界
         _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
         PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
@@ -263,5 +267,9 @@ public class FishingMiniGameManager : MonoBehaviour
         ResultStatusText.gameObject.SetActive(false);
         PutInBackpackButton.gameObject.SetActive(false);
         ReturnToMenuButton.gameObject.SetActive(false);
+        if (MiniGamePanel != null)//确保不为null再隐藏
+        {
+            MiniGamePanel.SetActive(false);
+        }    
     }
 }
