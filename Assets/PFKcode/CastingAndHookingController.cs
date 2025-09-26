@@ -59,7 +59,6 @@ public class CastingAndHookingController : MonoBehaviour
         PowerBarController.ResetPowerBar();
 
     }
-
     void Update()
     {
         // 这是状态机的核心：每一帧都根据当前状态，执行不同的逻辑
@@ -249,29 +248,21 @@ public class CastingAndHookingController : MonoBehaviour
         }
 
         // --- 4. 结果处理 ---
-    // 无论循环是因为时间到还是因为被break，都先隐藏感叹号
-    HookIcon.gameObject.SetActive(false);
+        // 无论循环是因为时间到还是因为被break，都先隐藏感叹号
+        HookIcon.gameObject.SetActive(false);
 
-    if (caughtInTime)
-    {
-        Debug.Log("提线成功！启动“与鱼博弈”小游戏！");
-        
-        // 【核心连接代码】
-        // 1. 命令 FishingMiniGameManager 开始小游戏 
-        FishingGameManager.StartMiniGame(CurrentFishingSpot); 
-        
-        // 2. 隐藏当前的“抛竿”UI
-        CastingAndHookingPanel.SetActive(false);
-
-        // 3. 将自身状态切换为“成功”，等待下一次被调用
-        ChangeState(GameplayState.Success);
-    }
-    else
-    {
-        Debug.Log("太慢了，鱼跑掉了！");
-        // 失败后，回到可以重新开始抛竿的状态
-        StartCastingProcess(); 
-    }
+        if (caughtInTime)
+        {
+            Debug.Log("提线成功！启动“与鱼博弈”小游戏！");
+            FishingGameManager.TriggerMiniGameStartSequence(CurrentFishingSpot); // 不再直接启动小游戏，而是请求播放过场动画
+            CastingAndHookingPanel.SetActive(false);//隐藏钓鱼UI
+            ChangeState(GameplayState.Success);//切换到成功状态
+        }
+        else
+        {
+            Debug.Log("太慢了，鱼跑掉了！");// 提线失败
+            StartCastingProcess(); // 重新开始抛竿流程
+        }
 
     }
     #endregion 私有方法

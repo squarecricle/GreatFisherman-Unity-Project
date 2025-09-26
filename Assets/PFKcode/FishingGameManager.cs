@@ -44,7 +44,6 @@ public class FishingMiniGameManager : MonoBehaviour
     private FishingSpot _currentSpot; // (新增) 用来“记住”是哪个钓鱼点启动了我们    
     #endregion
     #region unity回调函数
-
     void Start()
     {
         CurrentMiniGameState = GameState.NotStarted;
@@ -54,9 +53,6 @@ public class FishingMiniGameManager : MonoBehaviour
         ResultStatusText.gameObject.SetActive(false);
 
     }
-
-
-
     void Update()
     {
         // 我们的大脑：根据当前是什么状态，就做什么事
@@ -76,18 +72,18 @@ public class FishingMiniGameManager : MonoBehaviour
 
     #endregion unity回调函数
     #region 公有方法
-    public void OnResult_PutInBackpack()
+    public void TriggerMiniGameStartSequence(FishingSpot spot)//这个方法用来启动小游戏的过场动画和准备工作
+    {
+        StartCoroutine(StartMiniGameCoroutine(spot));
+    }
+    public void OnResult_PutInBackpack()//这个方法处理“放入背包”按钮的点击
     {
         // 1. 隐藏自己的结果UI
         HideResultUI();
         // 2. 向总管汇报，请求重新开始
         TheGameFlowManager.RestartFishingProcess();
     }
-
-    /// <summary>
-    /// 当“主菜单”按钮被点击时调用
-    /// </summary>
-    public void OnResult_ReturnToMenu()
+    public void OnResult_ReturnToMenu()//这个方法处理“返回主菜单”按钮的点击
     {
         // 1. 隐藏自己的结果UI
         HideResultUI();
@@ -95,7 +91,31 @@ public class FishingMiniGameManager : MonoBehaviour
         TheGameFlowManager.GoToMainMenu();
     }
 
-    public void StartMiniGame(FishingSpot spot)
+    #endregion 公有方法
+    #region 私有方法
+    private IEnumerator StartMiniGameCoroutine(FishingSpot spot)//这个协程处理小游戏的启动过场
+    {
+        // --- 第1阶段：准备舞台，显示“上钩了！” ---
+        // 激活主面板，但暂时不显示里面的具体游戏UI
+        MiniGamePanel.SetActive(true);
+        ProgressBar.gameObject.SetActive(false);
+        PlayerBar.gameObject.SetActive(false);
+        FishController.gameObject.SetActive(false);
+
+        // 显示提示文本
+        ResultStatusText.text = "上钩了!";
+        ResultStatusText.gameObject.SetActive(true);
+
+        // --- 第2阶段：按你要求，停顿1秒 ---
+        yield return new WaitForSeconds(1f);
+
+        // --- 第3阶段：清理舞台，真正开始游戏 ---
+        ResultStatusText.gameObject.SetActive(false);
+
+        // 调用我们刚才改好名字的初始化方法，正式布置游戏场景和数据
+        InitializeMiniGame(spot);
+    }
+    private void InitializeMiniGame(FishingSpot spot)
     {
         _currentSpot = spot; // <--- 添加这一行，把传进来的spot存起来
         //防止忘记在Inspector里拖拽currentFishData导致报错
@@ -127,8 +147,6 @@ public class FishingMiniGameManager : MonoBehaviour
         FishController.StartBehavior();
 
     }
-    #endregion 公有方法
-    #region 私有方法
     private void EndMiniGame(bool success)//结束博弈游戏
     {
         CurrentMiniGameState = success ? GameState.Success : GameState.Failed;
