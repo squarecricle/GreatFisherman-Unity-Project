@@ -1,55 +1,49 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-// [CreateAssetMenu] 是一个非常强大的特性（Attribute）。
-// 它告诉Unity编辑器：“请在 Assets/Create 菜单中添加一个创建此类型资产的选项。”
-// 这样，我们就可以像创建材质球或动画控制器一样，在项目文件夹中直接创建“鱼”的数据文件了。
 [CreateAssetMenu(fileName = "NewFishData", menuName = "PocketFishingKing/Fish Data")]
-public class FishData : ScriptableObject // 注意：这里继承的是 ScriptableObject，而不是 MonoBehaviour
+public class FishData : ScriptableObject
 {
     [Header("核心信息")]
-    public string FishName; // 鱼的名字
-    [TextArea] public string Description
-    ; // 鱼的描述
-    public Sprite FishIcon; // 鱼的图标，用于UI展示
-
-    // 使用枚举(enum)来预定义所有可能的选项，可以防止拼写错误，并且在Inspector中会显示为方便的下拉菜单。
-    public enum FishRarity { 普通, 稀有, 史诗, 传说 }
-    public FishRarity Rarity; // 稀有度
+    public string FishName;
+    [TextArea] public string Description; 
+    public Sprite FishIcon;
+    public enum FishRarity { 普通, 稀有, 史诗, 传说 } 
+    public FishRarity Rarity;
 
     public enum FishingLocation { 小溪, 森林湖, 公厕马桶, 海滩 }
     [Header("出现条件")]
-    public FishingLocation Location; // 主要出没地点
-
-    // 使用[Flags]特性可以让枚举在Inspector中表现为可以多选的复选框，非常方便！
+    public FishingLocation Location;
     [System.Flags]
     public enum TimeOfDay { 无 = 0, 白天 = 1, 夜晚 = 2 }
-    public TimeOfDay ApplicableTimeOfDay; // 正确：为变量起一个更具描述性的名字
+    public TimeOfDay ApplicableTimeOfDay;
 
-    [System.Flags] // <--- 第一步：添加Flags特性
-    public enum FishBehaviorType 
-    {
-        // 第二步：将值设为2的幂，这是Flags枚举工作的关键
-        平滑移动 = 1,     // 2^0
-        位置跳跃 = 2,     // 2^1
-        状态切换 = 4,     // 2^2
-        随机抖动 = 8      // 2^3
-    }
-    [Header("迷你游戏行为参数")]  
-    public FishBehaviorType FishBehavior; // 鱼的核心行为模式
-    public float MoveSpeed = 150f; // 基础移动速度
-    public float MinPauseDuration = 0.5f; // 停顿时长的最小值
-    public float MaxPauseDuration = 1.5f; // 停顿时长的最大值
+    // ---【核心修改部分】---
+    [Header("迷你游戏行为参数")]
+    [Tooltip("鱼的基础移动速度，可以被'改变速度'行为在游戏中动态修改")]
+    public float BaseMoveSpeed = 150f;
+
+    // [SerializeReference] 是另一个“魔法标签”，它告诉Unity的列表：
+    // “请允许我存放不同种类的‘行为积木’（Move_Action, Wait_Action等），并正确地保存它们。”
+    [SerializeReference]
+    [Tooltip("鱼在“冷静”状态下循环执行的行为序列")]
+    public List<FishAction> CalmBehaviorSequence;
+
+    [SerializeReference]
+    [Tooltip("鱼在“挣扎”状态下循环执行的行为序列")]
+    public List<FishAction> StruggleBehaviorSequence;
     
-    // 更多行为参数可以根据需要添加，比如跳跃距离，快速状态下的速度倍率等
-    // V1.0 我们先用以上通用参数，未来可以轻松扩展
+    [Tooltip("当进度条的值超过这个百分比时，鱼会进入“挣扎”状态")]
+    [Range(0, 1)]
+    public float StruggleThreshold = 0.7f;
+    // ---【修改结束】---
+
 
     [Header("产出信息")]
-    public int BaseSellPrice; // 基础售价
-
-    // 我们用Vector2来巧妙地存储一个(最小值, 最大值)的范围，x是min，y是max。
+    public int BaseSellPrice; 
     [Tooltip("鱼的长度范围(厘米)，X为最小值, Y为最大值")]
-    public Vector2 LengthRangeMianQiang; // 勉强上钩品质的长度范围
-    public Vector2 LengthRangeXiangMoXiangYang; // 像模像样
-    public Vector2 LengthRangeShiShiDuiJue; // 史诗对决
-    public Vector2 LengthRangeChuiNiuZiBen; // 吹牛资本
+    public Vector2 LengthRangeMianQiang;
+    public Vector2 LengthRangeXiangMoXiangYang;
+    public Vector2 LengthRangeShiShiDuiJue;
+    public Vector2 LengthRangeChuiNiuZiBen;
 }

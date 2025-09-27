@@ -143,7 +143,7 @@ public class FishingMiniGameManager : MonoBehaviour
         _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
         PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
         // 初始化鱼的位置
-        FishController.Initialize(CurrentFishData, _fishingAreaHeight); // <--- 初始化鱼
+        FishController.Initialize(CurrentFishData, _fishingAreaHeight, this); // <--- 初始化鱼
         FishController.StartBehavior();
 
     }
