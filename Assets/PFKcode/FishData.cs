@@ -25,7 +25,7 @@ public class FishData : ScriptableObject
 
     // [SerializeReference] 是另一个“魔法标签”，它告诉Unity的列表：
     // “请允许我存放不同种类的‘行为积木’（Move_Action, Wait_Action等），并正确地保存它们。”
-    [SerializeReference]
+    [SerializeReference]// 允许在列表中存放不同类型的实例
     [Tooltip("鱼在“冷静”状态下循环执行的行为序列")]
     public List<FishAction> CalmBehaviorSequence;
 

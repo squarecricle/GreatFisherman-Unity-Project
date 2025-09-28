@@ -31,7 +31,7 @@ public class Wait_Action : FishAction
     public float Duration = 1.5f;
 }
 
-[System.Serializable]
+[System.Serializable]//
 public class Jump_Action : FishAction
 {
     [Tooltip("瞬移后，最短/最长停顿多少秒")]
