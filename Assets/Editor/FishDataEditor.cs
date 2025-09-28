@@ -10,9 +10,9 @@ public class FishDataEditor : Editor
     SerializedProperty calmBehaviorProp;
     SerializedProperty struggleBehaviorProp;
 
-    private List<System.Type> _fishActionTypes;
-    private string[] _fishActionTypeNames;
-    private int _selectedActionTypeIndex = 0;
+    private List<System.Type> _fishActionTypes;// 用于存放所有继承自 FishAction 的类型
+    private string[] _fishActionTypeNames;// 用于下拉菜单显示
+    private int _selectedActionTypeIndex = 0;// 下拉菜单当前选中的索引
 
     // OnEnable 方法在选中对象、脚本被加载时调用
     private void OnEnable()
@@ -21,12 +21,14 @@ public class FishDataEditor : Editor
 
         calmBehaviorProp = serializedObject.FindProperty("CalmBehaviorSequence");
         struggleBehaviorProp = serializedObject.FindProperty("StruggleBehaviorSequence");
-        _fishActionTypes = System.AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(type => type.IsSubclassOf(typeof(FishAction)) && !type.IsAbstract)
-            .ToList();
+        // 获取所有继承自 FishAction 的非抽象类类型
+        _fishActionTypes = System.AppDomain.CurrentDomain.GetAssemblies()//获取当前程序正在运行的所有“代码库”（程序集 Assemblies）。这包括了您自己项目的代码、Unity引擎的代码以及您可能引入的任何第三方插件的代码。返回一个代码库的集合。
+            .SelectMany(assembly => assembly.GetTypes())//遍历上一步获取到的每一个“代码库”，然后从每个库中取出它所包含的所有类型。
+            //SelectMany的作用是将这些来自不同代码库的类型列表“拍平”，合并成一个巨大的、包含所有类型的单一列表。
+            .Where(type => type.IsSubclassOf(typeof(FishAction)) && !type.IsAbstract)//筛选出所有继承自 FishAction 的类型，同时排除掉抽象类（因为抽象类不能被实例化）。
+            .ToList();//将所有通过筛选的、符合条件的 Type 对象，最终集合成一个 List<Type> 类型的列表，并赋值给 _fishActionTypes 变量。
 
-        // 创建一个对用户更友好的名称数组，用于下拉菜单显示
+        // 创建一个对用户更友好（去掉_Action）的名称数组，用于下拉菜单显示
         _fishActionTypeNames = _fishActionTypes.Select(type => type.Name.Replace("_Action", "")).ToArray();
 
     }
@@ -66,41 +68,48 @@ public class FishDataEditor : Editor
             //遍历列表中的每一个元素并绘制它们
             for (int i = 0; i < listProperty.arraySize; i++)
             {
-                // 获取当前列表第i个元素对应的代理人，命名为elementProp
+                // --- 水平布局，让删除按钮和元素在同一行 ---
+                EditorGUILayout.BeginHorizontal();
+
                 SerializedProperty elementProp = listProperty.GetArrayElementAtIndex(i);
+                EditorGUILayout.PropertyField(elementProp, new GUIContent("Element " + i), true);
 
-                //使用“万能绘制工具”，根据刚刚获取的“第I个元素对应代理人”，在 Inspector 上画出对应的 UI 控件，名字为“Element i”，并且允许它展开子属性
-                //EditorGUILayout.PropertyField(elementProp, new GUIContent("Element " + i), true);
-                EditorGUILayout.LabelField("Element " + i, EditorStyles.boldLabel); // 用一个粗体标签代替默认的折叠
-            
-                // 关键：通过 managedReferenceValue 获取真实实例
-                object actionObject = elementProp.managedReferenceValue;
-
-                // 根据的实例具体类型，绘制不同的UI
-                // 根据不同类型，通过代理人手动绘制各自专属的属性字段
-                if (actionObject is Move_Action)
+                // --- 删除按钮 ---
+                if (GUILayout.Button("X", GUILayout.Width(25)))
                 {
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("Speed"));
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("Duration"));
+                    // 先置空引用，防止Unity报错
+                    elementProp.managedReferenceValue = null;
+                    // 然后从列表中删除
+                    listProperty.DeleteArrayElementAtIndex(i);
+                    // 退出循环，因为列表长度已改变
+                    break; 
                 }
-                else if (actionObject is Wait_Action)
-                {
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("Duration"));
-                }
-                else if (actionObject is Jump_Action)
-                {
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("PauseDurationRange"));
-                }
-                else if (actionObject is ChangeSpeed_Action)
-                {
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("NewSpeed"));
-                }
-                else
-                {
-                    // 如果元素是null或者是一个未知的类型，显示一个帮助框
-                    EditorGUILayout.HelpBox("这是一个空的或未知的行为类型。", MessageType.Warning);
-                }
+                EditorGUILayout.EndHorizontal();
             }
+
+            // --- 添加新元素的功能区 ---
+            EditorGUILayout.Space();
+            
+            // --- 开始水平布局，让下拉菜单和添加按钮在同一行 ---
+            EditorGUILayout.BeginHorizontal();
+            
+            // 绘制下拉菜单
+            _selectedActionTypeIndex = EditorGUILayout.Popup("选择行为类型", _selectedActionTypeIndex, _fishActionTypeNames);
+            
+            // 绘制添加按钮
+            if (GUILayout.Button("添加行为"))
+            {
+                //通过索引从_fishActionTypes列表中获取用户在下拉菜单中选择的类型。
+                System.Type selectedType = _fishActionTypes[_selectedActionTypeIndex];
+                // 这是修改列表长度的“官方”方式。我们让“总代理人”将真实列表的 size 加一，这会在列表的末尾创建一个新的、空的元素“格子”。
+                listProperty.arraySize++;
+                // 我们获取这个刚刚创建的、位于列表最末端的空“格子”的“专属代理人”。
+                SerializedProperty newElement = listProperty.GetArrayElementAtIndex(listProperty.arraySize - 1);
+                // 创建所选类型的实例，并赋值给新元素
+                newElement.managedReferenceValue = System.Activator.CreateInstance(selectedType);
+            }
+            // 结束水平布局
+            EditorGUILayout.EndHorizontal();
 
             // 恢复缩进
             EditorGUI.indentLevel--;
