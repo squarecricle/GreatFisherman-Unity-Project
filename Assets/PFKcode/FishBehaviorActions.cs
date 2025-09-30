@@ -47,12 +47,12 @@ public class ChangeSpeed_Action : FishAction
 [System.Serializable]
 public class Jitter_Action : FishAction
 {
-    [Tooltip("这个抖动行为会持续多少秒")]
-    public float Duration = 1.5f;
+    [Tooltip("整个抖动行为持续的总时长（秒）")]
+    public float Duration = 2f;
 
-    [Tooltip("抖动的最大幅度（以此为中心，上下随机移动的距离）")]
-    public float Magnitude = 20f;
+    [Tooltip("每次抖动的最大幅度（上下随机移动的距离）")]
+    public float Magnitude = 50f;
 
-    [Tooltip("抖动的频率（值越大，抖动越快、越频繁）")]
-    public float JittersPerSecond = 10f;
+    [Tooltip("两次抖动之间的间隔时间（秒），值越小抖动越频繁")]
+    public float Interval = 0.1f;
 }

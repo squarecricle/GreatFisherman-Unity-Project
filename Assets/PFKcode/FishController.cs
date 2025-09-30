@@ -75,16 +75,19 @@ public class FishController : MonoBehaviour
         // 只要这个协程在运行，就不断地执行行为序列
         while (true)
         {
-            // 1. 根据进度条决定使用哪个行为序列
-            if (_gameManager.ProgressBar.value >= _currentFishData.StruggleThreshold)
-            {
-                _currentBehaviorSequence = _currentFishData.StruggleBehaviorSequence;
-            }
-            else
-            {
-                _currentBehaviorSequence = _currentFishData.CalmBehaviorSequence;
-            }
+            // 1. 先“提名”出下一帧应该播放哪个序列
+            List<FishAction> nextSequence = (_gameManager.ProgressBar.value >= _currentFishData.StruggleThreshold)
+                ? _currentFishData.StruggleBehaviorSequence
+                : _currentFishData.CalmBehaviorSequence;
 
+            // 2. 检查“提名”的序列和“当前正在播放”的序列是不是同一个
+            if (nextSequence != _currentBehaviorSequence)
+            {
+                // 如果不是同一个，说明鱼的状态发生了切换（冷静 <-> 挣扎）
+                // 此时必须重置索引，否则就会发生你遇到的bug！
+                _currentBehaviorSequence = nextSequence;
+                _currentActionIndex = 0;
+            }
             // 安全检查：如果序列为空，就等待一帧避免报错
             if (_currentBehaviorSequence == null || _currentBehaviorSequence.Count == 0)
             {
@@ -116,20 +119,58 @@ public class FishController : MonoBehaviour
             }
             else if (currentAction is Wait_Action waitAction)
             {
-                yield return new WaitForSeconds(waitAction.Duration);
+                yield return new WaitForSeconds(waitAction.Duration);// 直接等待指定时间
             }
             else if (currentAction is Jump_Action jumpAction)
             {
-                float pauseTime = Random.Range(jumpAction.PauseDurationRange.x, jumpAction.PauseDurationRange.y);
-                yield return new WaitForSeconds(pauseTime);
+                float pauseTime = Random.Range(jumpAction.PauseDurationRange.x, jumpAction.PauseDurationRange.y);// 随机一个停顿时间
+                
+                yield return new WaitForSeconds(pauseTime);// 等待停顿时间
 
-                float targetY = Random.Range(_minY, _maxY);
-                _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, targetY);
+                float targetY = Random.Range(_minY, _maxY);// 随机一个新的Y位置
+                _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, targetY);// 瞬移到新位置
             }
             else if (currentAction is ChangeSpeed_Action changeSpeedAction)
             {
-                _currentSpeed = changeSpeedAction.NewSpeed;
+                _currentSpeed = changeSpeedAction.NewSpeed;// 直接改变当前速度
                 yield return null; // 改变速度是瞬间的，等待一帧继续
+            }
+            else if (currentAction is Jitter_Action jitterAction)
+            {
+                // 计时器，用于控制整个抖动行为的总时长
+                _actionTimer = 0f; 
+                // 独立计时器，用于控制两次抖动之间的间隔
+                float jitterTimer = 0f; 
+
+                // 在指定的总时长内，持续执行抖动逻辑
+                while (_actionTimer < jitterAction.Duration)
+                {
+                    // 两个计时器同时累加
+                    _actionTimer += Time.deltaTime;
+                    jitterTimer += Time.deltaTime;
+
+                    // 当间隔计时器到达指定间隔时
+                    if (jitterTimer >= jitterAction.Interval)
+                    {
+                        // 1. 计算一个随机的Y轴偏移量
+                        float yOffset = Random.Range(-jitterAction.Magnitude, jitterAction.Magnitude);
+                        
+                        // 2. 在当前位置的基础上应用偏移，得到目标位置
+                        float targetY = _rectTransform.anchoredPosition.y + yOffset;
+
+                        // 3. 【安全措施】确保目标位置不会超出活动边界
+                        targetY = Mathf.Clamp(targetY, _minY, _maxY);
+
+                        // 4. 瞬间移动到新的目标位置
+                        _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, targetY);
+
+                        // 5. 重置间隔计时器，准备下一次抖动
+                        jitterTimer = 0f;
+                    }
+                    
+                    // 等待下一帧，让游戏继续进行
+                    yield return null; 
+                }
             }
 
             // 4. 移动到序列中的下一个行为
