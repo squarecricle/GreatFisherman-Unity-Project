@@ -18,12 +18,21 @@ MonoBehaviour:
   Rarity: 0
   Location: 0
   ApplicableTimeOfDay: 0
-  FishBehavior: 1
-  MoveSpeed: 150
-  MinPauseDuration: 0.5
-  MaxPauseDuration: 1.5
+  BaseMoveSpeed: 150
+  CalmBehaviorSequence:
+  - rid: -2
+  - rid: -2
+  StruggleBehaviorSequence:
+  - rid: -2
+  - rid: -2
+  StruggleThreshold: 0.7
   BaseSellPrice: 0
   LengthRangeMianQiang: {x: 0, y: 0}
   LengthRangeXiangMoXiangYang: {x: 0, y: 0}
   LengthRangeShiShiDuiJue: {x: 0, y: 0}
   LengthRangeChuiNiuZiBen: {x: 0, y: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

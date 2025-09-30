@@ -17,8 +17,7 @@ public class FishDataEditor : Editor
     // OnEnable 方法在选中对象、脚本被加载时调用
     private void OnEnable()
     {
-        // 步骤 2: 挑出FishData里两个属性，分配到这个代理人上
-
+        // 步骤 2: 让代理人对接到FishData里的真实数据
         calmBehaviorProp = serializedObject.FindProperty("CalmBehaviorSequence");
         struggleBehaviorProp = serializedObject.FindProperty("StruggleBehaviorSequence");
         // 获取所有继承自 FishAction 的非抽象类类型
@@ -55,7 +54,7 @@ public class FishDataEditor : Editor
         // listProperty.isExpanded 会自动为每个列表记住它们的折叠状态
         EditorGUILayout.Space(); // 添加一点垂直间距，让UI更美观
         listProperty.isExpanded = EditorGUILayout.Foldout(listProperty.isExpanded, label, true);
-        //EditorGUILayout.Foldout(目前列表状态, 列表标签（名字）, 赋值为true)，但这个函数并没有改变listProperty.isExpanded的值，所以我们需要手动赋值
+        //EditorGUILayout.Foldout(目前列表状态, 列表标签（名字）, 点击模式true：整行点那里点都行)，但这个函数并没有改变listProperty.isExpanded的值，所以我们需要手动赋值
         //如果用户展开了这个区域，我们就绘制列表的内容
         if (listProperty.isExpanded)
         {
@@ -102,7 +101,7 @@ public class FishDataEditor : Editor
                 //通过索引从_fishActionTypes列表中获取用户在下拉菜单中选择的类型。
                 System.Type selectedType = _fishActionTypes[_selectedActionTypeIndex];
                 // 这是修改列表长度的“官方”方式。我们让“总代理人”将真实列表的 size 加一，这会在列表的末尾创建一个新的、空的元素“格子”。
-                listProperty.arraySize++;
+                listProperty.arraySize++;//也就是后面的
                 // 我们获取这个刚刚创建的、位于列表最末端的空“格子”的“专属代理人”。
                 SerializedProperty newElement = listProperty.GetArrayElementAtIndex(listProperty.arraySize - 1);
                 // 创建所选类型的实例，并赋值给新元素
