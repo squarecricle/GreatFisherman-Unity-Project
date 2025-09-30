@@ -44,3 +44,15 @@ public class ChangeSpeed_Action : FishAction
     [Tooltip("将鱼的基础速度变更为这个新值")]
     public float NewSpeed = 300f;
 }
+[System.Serializable]
+public class Jitter_Action : FishAction
+{
+    [Tooltip("这个抖动行为会持续多少秒")]
+    public float Duration = 1.5f;
+
+    [Tooltip("抖动的最大幅度（以此为中心，上下随机移动的距离）")]
+    public float Magnitude = 20f;
+
+    [Tooltip("抖动的频率（值越大，抖动越快、越频繁）")]
+    public float JittersPerSecond = 10f;
+}
