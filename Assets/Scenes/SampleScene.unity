@@ -807,7 +807,7 @@ MonoBehaviour:
   CurrentMiniGameState: 0
   PutInBackpackButton: {fileID: 1123589057}
   ReturnToMenuButton: {fileID: 1227520032}
-  ProgressIncreaseRate: 0.5
+  ProgressIncreaseRate: 0.2
   ProgressDecreaseRate: 0.1
 --- !u!1 &602176548
 GameObject:
@@ -1179,7 +1179,6 @@ MonoBehaviour:
   CastingController: {fileID: 119558412}
   FishPool:
   - {fileID: 11400000, guid: dc56f1cd522666e479cfb07d26078ff5, type: 2}
-  - {fileID: 11400000, guid: 17091d13f6c1fa2408db36ca933b2fbc, type: 2}
 --- !u!4 &681863357
 Transform:
   m_ObjectHideFlags: 0
