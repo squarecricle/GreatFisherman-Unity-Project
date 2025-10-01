@@ -1178,7 +1178,7 @@ MonoBehaviour:
   StartFishingButton: {fileID: 0}
   CastingController: {fileID: 119558412}
   FishPool:
-  - {fileID: 11400000, guid: dc56f1cd522666e479cfb07d26078ff5, type: 2}
+  - {fileID: 11400000, guid: dac7fe4428723d740bf24b34613b6c68, type: 2}
 --- !u!4 &681863357
 Transform:
   m_ObjectHideFlags: 0
@@ -1539,7 +1539,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 1405153393}
   m_HandleRect: {fileID: 0}
@@ -3317,7 +3317,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 478149978}
   m_HandleRect: {fileID: 0}

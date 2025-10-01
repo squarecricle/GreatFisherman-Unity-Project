@@ -18,12 +18,82 @@ MonoBehaviour:
   Rarity: 0
   Location: 0
   ApplicableTimeOfDay: 0
-  FishBehavior: 1
-  MoveSpeed: 150
-  MinPauseDuration: 0.5
-  MaxPauseDuration: 1.5
+  BaseMoveSpeed: 50
+  CalmBehaviorSequence:
+  - rid: 209834125000179730
+  - rid: 209834125000179727
+  - rid: 209834125000179736
+  - rid: 209834125000179728
+  - rid: 209834125000179729
+  - rid: 209834125000179737
+  StruggleBehaviorSequence:
+  - rid: 209834125000179733
+  - rid: 209834125000179732
+  - rid: 209834125000179734
+  - rid: 209834125000179735
+  - rid: 209834125000179739
+  StruggleThreshold: 0.8
   BaseSellPrice: 0
   LengthRangeMianQiang: {x: 0, y: 0}
   LengthRangeXiangMoXiangYang: {x: 0, y: 0}
   LengthRangeShiShiDuiJue: {x: 0, y: 0}
   LengthRangeChuiNiuZiBen: {x: 0, y: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 209834125000179727
+      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
+      data:
+        MoveTimes: 1
+        MaxDurationPerMove: 0.5
+        PreferredNormLocationRange: {x: 0, y: 1}
+        HomingBias: 0
+    - rid: 209834125000179728
+      type: {class: ChangeSpeed_Action, ns: , asm: Assembly-CSharp}
+      data:
+        NewSpeed: 300
+    - rid: 209834125000179729
+      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
+      data:
+        MoveTimes: 1
+        MaxDurationPerMove: 1.5
+        PreferredNormLocationRange: {x: 0.8, y: 1}
+        HomingBias: 1
+    - rid: 209834125000179730
+      type: {class: ChangeSpeed_Action, ns: , asm: Assembly-CSharp}
+      data:
+        NewSpeed: 50
+    - rid: 209834125000179732
+      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
+      data:
+        MoveTimes: 1
+        MaxDurationPerMove: 1.5
+        PreferredNormLocationRange: {x: 0, y: 1}
+        HomingBias: 0
+    - rid: 209834125000179733
+      type: {class: ChangeSpeed_Action, ns: , asm: Assembly-CSharp}
+      data:
+        NewSpeed: 500
+    - rid: 209834125000179734
+      type: {class: Wait_Action, ns: , asm: Assembly-CSharp}
+      data:
+        Duration: 1.5
+    - rid: 209834125000179735
+      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
+      data:
+        MoveTimes: 1
+        MaxDurationPerMove: 1.5
+        PreferredNormLocationRange: {x: 0, y: 1}
+        HomingBias: 0
+    - rid: 209834125000179736
+      type: {class: Wait_Action, ns: , asm: Assembly-CSharp}
+      data:
+        Duration: 1.5
+    - rid: 209834125000179737
+      type: {class: Wait_Action, ns: , asm: Assembly-CSharp}
+      data:
+        Duration: 1.5
+    - rid: 209834125000179739
+      type: {class: Wait_Action, ns: , asm: Assembly-CSharp}
+      data:
+        Duration: 1.5

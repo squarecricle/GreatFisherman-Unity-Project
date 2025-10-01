@@ -203,7 +203,7 @@ public class FishDataEditor : Editor
         switch (actionObject)
         {
             case Move_Action move:
-                return $"{typeName} | Duration: {move.Duration:F1}s";
+                return $"{typeName} | Duration: s";
             case Wait_Action wait:
                 return $"{typeName} | Duration: {wait.Duration:F1}s";
             case Jump_Action jump:
@@ -211,7 +211,7 @@ public class FishDataEditor : Editor
             case ChangeSpeed_Action speed:
                 return $"{typeName} | New Speed: {speed.NewSpeed}";
             case Jitter_Action jitter:
-                return $"{typeName} | Distance: {jitter.MinMaxMoveDistance.x}-{jitter.MinMaxMoveDistance.y}";
+                return $"{typeName} | Distance: {jitter.MinMaxJitterDistance.x}-{jitter.MinMaxJitterDistance.y}";
             default:
                 return typeName;
         }

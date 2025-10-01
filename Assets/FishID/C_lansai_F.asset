@@ -12,16 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f3cc09d9dfaa104bb5d65f348c44e86, type: 3}
   m_Name: C_lansai_F
   m_EditorClassIdentifier: 
-  FishName: 
-  Description: 
+  FishName: "\u84DD\u9CC3\u9C7C"
+  Description: "\u6570\u91CF\u591A\u5230\u4F60\u4E0D\u60F3\u89C1\u5230\u5B83\u2026"
   FishIcon: {fileID: 0}
   Rarity: 0
   Location: 0
   ApplicableTimeOfDay: 0
-  BaseMoveSpeed: 150
-  CalmBehaviorSequence: []
-  StruggleBehaviorSequence: []
-  StruggleThreshold: 0.527
+  BaseMoveSpeed: 300
+  CalmBehaviorSequence:
+  - rid: 209834125000179714
+  StruggleBehaviorSequence:
+  - rid: 209834125000179715
+  - rid: 209834125000179716
+  StruggleThreshold: 1
   BaseSellPrice: 0
   LengthRangeMianQiang: {x: 0, y: 0}
   LengthRangeXiangMoXiangYang: {x: 0, y: 0}
@@ -29,4 +32,22 @@ MonoBehaviour:
   LengthRangeChuiNiuZiBen: {x: 0, y: 0}
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 209834125000179714
+      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
+      data:
+        MoveTimes: 5
+        MaxDurationPerMove: 1.5
+        PreferredNormLocationRange: {x: 0.7, y: 1}
+        HomingBias: 0.9
+    - rid: 209834125000179715
+      type: {class: ChangeSpeed_Action, ns: , asm: Assembly-CSharp}
+      data:
+        NewSpeed: 250
+    - rid: 209834125000179716
+      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
+      data:
+        MoveTimes: 1
+        MaxDurationPerMove: 1.5
+        PreferredNormLocationRange: {x: 0.5, y: 1}
+        HomingBias: 0.8
