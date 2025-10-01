@@ -211,7 +211,7 @@ public class FishDataEditor : Editor
             case ChangeSpeed_Action speed:
                 return $"{typeName} | New Speed: {speed.NewSpeed}";
             case Jitter_Action jitter:
-                return $"{typeName} | Duration: {jitter.Duration:F1}s, Interval: {jitter.Interval:F2}s";
+                return $"{typeName} | Distance: {jitter.MinMaxMoveDistance.x}-{jitter.MinMaxMoveDistance.y}";
             default:
                 return typeName;
         }

@@ -19,13 +19,9 @@ MonoBehaviour:
   Location: 0
   ApplicableTimeOfDay: 0
   BaseMoveSpeed: 150
-  CalmBehaviorSequence:
-  - rid: 6730822745438552069
-  - rid: 6730822745438552071
-  StruggleBehaviorSequence:
-  - rid: 6730822745438552068
-  - rid: 6730822745438552073
-  StruggleThreshold: 0.721
+  CalmBehaviorSequence: []
+  StruggleBehaviorSequence: []
+  StruggleThreshold: 0.527
   BaseSellPrice: 0
   LengthRangeMianQiang: {x: 0, y: 0}
   LengthRangeXiangMoXiangYang: {x: 0, y: 0}
@@ -33,20 +29,4 @@ MonoBehaviour:
   LengthRangeChuiNiuZiBen: {x: 0, y: 0}
   references:
     version: 2
-    RefIds:
-    - rid: 6730822745438552068
-      type: {class: ChangeSpeed_Action, ns: , asm: Assembly-CSharp}
-      data:
-        NewSpeed: 300
-    - rid: 6730822745438552069
-      type: {class: ChangeSpeed_Action, ns: , asm: Assembly-CSharp}
-      data:
-        NewSpeed: 100
-    - rid: 6730822745438552071
-      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
-      data:
-        Duration: 0.5
-    - rid: 6730822745438552073
-      type: {class: Move_Action, ns: , asm: Assembly-CSharp}
-      data:
-        Duration: 1
+    RefIds: []

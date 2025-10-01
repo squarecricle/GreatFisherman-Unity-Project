@@ -90,29 +90,49 @@ public class Jitter_Action : FishAction
     [Tooltip("整个抖动行为持续的总时长（秒）")]
     public float Duration = 2f;
 
-    [Tooltip("每次抖动的最大幅度（上下随机移动的距离）")]
-    public float Magnitude = 50f;
-
-    [Tooltip("两次抖动之间的间隔时间（秒），值越小抖动越频繁")]
-    public float Interval = 0.1f;
+    // ---【新参数，取代了旧的Magnitude和Interval】---
+    [Tooltip("每次向上或向下移动的最小/最大距离。X为最小值，Y为最大值。")]
+    public Vector2 MinMaxMoveDistance = new Vector2(75f, 150f);
 
     public override IEnumerator Execute(FishController controller)
     {
-        float durationTimer = 0f;
-        float intervalTimer = 0f;
+        float durationTimer = 0f;// 这个计时器用来追踪整个行为的持续时间
+        var rectTransform = controller.RectTransform;// 获取鱼的RectTransform组件，方便后续操作
 
+        // 步骤1：初始化方向。
+        // 如果鱼的当前位置在中心点(y=0)的下方，则第一次移动方向为上；反之为下。
+        // 这确保了初始移动总是趋向于中心区域，表现更自然。
+        bool isMovingUp = rectTransform.anchoredPosition.y < 0;
+
+        // 步骤2：根据初始方向，计算出第一个目标点。
+        float moveDistance = Random.Range(MinMaxMoveDistance.x, MinMaxMoveDistance.y);
+        float targetY = rectTransform.anchoredPosition.y + (isMovingUp ? moveDistance : -moveDistance);
+        targetY = Mathf.Clamp(targetY, controller.MinY, controller.MaxY);
+
+        // --- 核心移动循环 ---
         while (durationTimer < Duration)
         {
-            durationTimer += Time.deltaTime;
-            intervalTimer += Time.deltaTime;
+            durationTimer += Time.deltaTime;// 累加总时长计时器
 
-            if (intervalTimer >= Interval)
+            // 步骤3：每帧都向当前的目标点平滑移动。
+            Vector2 currentPos = rectTransform.anchoredPosition;
+            Vector2 targetPos = new Vector2(currentPos.x, targetY);
+            Vector2 newPos = Vector2.MoveTowards(currentPos, targetPos, controller.CurrentSpeed * Time.deltaTime);
+            rectTransform.anchoredPosition = newPos;
+
+            // 步骤4：【无停顿机制的核心】检查是否已“几乎”到达目标点。
+            // 使用Mathf.Approximately可以避免浮点数精度问题。
+            if (Mathf.Approximately(newPos.y, targetY))
             {
-                float yOffset = Random.Range(-Magnitude, Magnitude);
-                float targetY = controller.RectTransform.anchoredPosition.y + yOffset;
+                // a. 到达后，立即反转下一次的移动方向
+                isMovingUp = !isMovingUp;
+
+                // b. 立即计算出一个位于新方向上的、新的目标点
+                moveDistance = Random.Range(MinMaxMoveDistance.x, MinMaxMoveDistance.y);
+                targetY = rectTransform.anchoredPosition.y + (isMovingUp ? moveDistance : -moveDistance);
                 targetY = Mathf.Clamp(targetY, controller.MinY, controller.MaxY);
-                controller.RectTransform.anchoredPosition = new Vector2(controller.RectTransform.anchoredPosition.x, targetY);
-                intervalTimer = 0f;
+                
+                // 协程会在此处结束当前帧，并在下一帧无缝地朝新目标点移动。
             }
 
             yield return null;

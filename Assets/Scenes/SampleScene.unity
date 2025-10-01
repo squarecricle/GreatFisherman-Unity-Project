@@ -807,7 +807,7 @@ MonoBehaviour:
   CurrentMiniGameState: 0
   PutInBackpackButton: {fileID: 1123589057}
   ReturnToMenuButton: {fileID: 1227520032}
-  ProgressIncreaseRate: 0.2
+  ProgressIncreaseRate: 0.1
   ProgressDecreaseRate: 0.1
 --- !u!1 &602176548
 GameObject:
