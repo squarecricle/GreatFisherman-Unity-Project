@@ -174,7 +174,7 @@ public class FishingMiniGameManager : MonoBehaviour
 
             // 4. 显示结果
             ResultStatusText.text = $"成功!\n品质: {result.FishedQuality}\n长度: {result.Length:F2} cm";
-            Debug.Log($"渔获报告 - 鱼: {result.FishedData.FishName}, 品质: {result.FishedQuality}, 长度: {result.Length:F2} cm");
+            Debug.Log($"渔获报告 - 鱼: {result.FishedData.ItemName}, 品质: {result.FishedQuality}, 长度: {result.Length:F2} cm");
         }
         else
         {

@@ -1177,8 +1177,8 @@ MonoBehaviour:
   FishingGameManager: {fileID: 565500589}
   StartFishingButton: {fileID: 0}
   CastingController: {fileID: 119558412}
-  FishPool:
-  - {fileID: 11400000, guid: dac7fe4428723d740bf24b34613b6c68, type: 2}
+  LootPool:
+  - {fileID: 11400000, guid: dc56f1cd522666e479cfb07d26078ff5, type: 2}
 --- !u!4 &681863357
 Transform:
   m_ObjectHideFlags: 0

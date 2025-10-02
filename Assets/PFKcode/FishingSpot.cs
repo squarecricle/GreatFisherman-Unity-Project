@@ -5,96 +5,88 @@ public class FishingSpot : MonoBehaviour
 {
     [Header("系统关联")]
     public FishingMiniGameManager FishingGameManager;
-    public GameObject StartFishingButton; 
-    public CastingAndHookingController CastingController; // 新增对抛竿控制器的引用
-    [Header("鱼池配置")]
-    public List<FishData> FishPool;
+    public GameObject StartFishingButton;
+    public CastingAndHookingController CastingController;
 
-    // 这个方法是我们整个系统的入口
-        public void StartFishing()
+    [Header("奖池配置")]
+    // --- 【修改1】: 列表类型和名字都变了 ---
+    public List<CatchableData> LootPool; // 不再是 FishPool，而是通用的 LootPool
+
+    public void StartFishing()
     {
         // 检查必要的组件是否都已关联
-        if (CastingController == null || FishPool == null || FishPool.Count == 0)
+        if (CastingController == null || LootPool == null || LootPool.Count == 0)
         {
-            Debug.LogError("FishingSpot 配置不完整! 请检查 CastingController 和 FishPool。");
+            Debug.LogError("FishingSpot 配置不完整! 请检查 CastingController 和 LootPool。");
             return;
         }
 
         // 隐藏“开始钓鱼”按钮
         StartFishingButton.SetActive(false);
-
-        // --- 核心产出逻辑 (这部分不变) ---
-        FishData selectedFish = SelectFishByWeight();
-        if (selectedFish == null)
+        // --- 核心产出逻辑修改 ---
+        CatchableData selectedItem = SelectItemByWeight(); // 调用我们新的方法
+        if (selectedItem == null)
         {
-            Debug.LogError("未能根据权重选出任何鱼！请检查鱼池配置。");
-            OnFishingSessionEnd(); // 让按钮回来，防止游戏卡住
+            Debug.LogError("未能根据权重选出任何物品！请检查奖池配置。");
+            OnFishingSessionEnd();
             return;
         }
-
-        // --- 流程衔接修改 ---
-        // 1. 将选中的鱼的数据，传递给 FishingMiniGameManager（它需要提前知道一会要跟谁博弈）
-        FishingGameManager.CurrentFishData = selectedFish;
-
-        // 2.
+        
+        // 我们需要判断钓上来的具体是鱼还是什么
+        if (selectedItem is FishData)
+        {
+            // 如果是鱼，才传递给GameManager
+            FishingGameManager.CurrentFishData = selectedItem as FishData;
+            Debug.Log($"一条 {(selectedItem as FishData).Rarity} 品质的鱼 '{selectedItem.ItemName}' 准备上钩!");
+        }
+        else
+        {
+            // 如果是垃圾或其他东西，我们暂时先清空GameManager中的鱼数据
+            // 未来这里可以用来传递垃圾的数据
+            FishingGameManager.CurrentFishData = null; // 或者传递一个代表垃圾的FishData
+            Debug.Log($"一个 '{selectedItem.ItemName}' 准备上钩!");
+        }
+        
+        // 2. 开始抛竿过程
         CastingController.StartCastingProcess();
-
-        Debug.Log($"一条 {selectedFish.Rarity} 品质的鱼 '{selectedFish.FishName}' 准备上钩!");
     }
 
+    // --- 【修改2】: 整个权重挑选方法被重写，变得更通用 ---
     /// <summary>
-    /// 根据鱼的稀有度权重，从 FishPool 列表中挑选一条鱼
+    /// 根据物品的 BaseWeight，从 LootPool 列表中挑选一个物品
     /// </summary>
-    /// <returns>被选中的鱼</returns>
-    public FishData SelectFishByWeight()
+    /// <returns>被选中的物品</returns>
+    public CatchableData SelectItemByWeight()
     {
         // --- 步骤 a: 计算总权重 ---
         int totalWeight = 0;
-        foreach (FishData fish in FishPool)
+        foreach (CatchableData item in LootPool)
         {
-            totalWeight += GetWeightForRarity(fish.Rarity);
+            totalWeight += item.BaseWeight; // 直接使用基类里的BaseWeight
         }
+
+        if (totalWeight == 0) return null;
 
         // --- 步骤 b: 生成一个0到总权重之间的随机数 ---
         int randomWeight = Random.Range(0, totalWeight);
-
-        // --- 步骤 c: 遍历所有鱼，看随机数落入哪个区间 ---
-        FishData selectedFish = null;
-        foreach (FishData fish in FishPool)
+        
+        // --- 步骤 c: 遍历所有物品，看随机数落入哪个区间 ---
+        foreach (CatchableData item in LootPool)
         {
-            int currentFishWeight = GetWeightForRarity(fish.Rarity);
-            
-            // 如果随机数小于当前鱼的权重，就选中这条鱼
-            if (randomWeight < currentFishWeight)
+            // 如果随机数小于当前物品的权重，就选中这个物品
+            if (randomWeight < item.BaseWeight)
             {
-                selectedFish = fish;
-                break; // 找到后立刻跳出循环
+                return item;
             }
             
-            // 如果没选中，就从随机数中减去当前鱼的权重，继续下一轮
-            randomWeight -= currentFishWeight;
+            // 如果没选中，就从随机数中减去当前物品的权重，继续下一轮
+            randomWeight -= item.BaseWeight;
         }
 
-        return selectedFish;
+        return null; // 理论上不应该执行到这里
     }
-
-    /// <summary>
-    /// 辅助函数：根据稀有度返回一个整数权重值
-    /// </summary>
-    /// <param name="rarity">鱼的稀有度</param>
-    /// <returns>权重值</returns>
-    private int GetWeightForRarity(FishData.FishRarity rarity)
-    {
-        // 这些数值是游戏策划的核心，未来可以随时调整来控制产出概率
-        switch (rarity)
-        {
-            case FishData.FishRarity.普通:   return 100;
-            case FishData.FishRarity.稀有:   return 25;
-            case FishData.FishRarity.史诗:   return 5;
-            case FishData.FishRarity.传说:   return 1;
-            default:                        return 0; // 如果有未定义的稀有度，权重为0
-        }
-    }
+    
+    // 我们不再需要 GetWeightForRarity 这个方法了，可以删掉它。
 
     // 当钓鱼环节结束时调用，让开始按钮重新出现
     public void OnFishingSessionEnd()

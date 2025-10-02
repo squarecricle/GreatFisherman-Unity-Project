@@ -61,8 +61,9 @@ public class GameFlowManager : MonoBehaviour
     // 我们把重复的逻辑抽出来，放到一个私有方法里
     private void PrepareToFish(FishingSpot spot, string spotName)
     {
-        MiniGameManager.CurrentFishData = spot.SelectFishByWeight();
-
+      var selectedItem = spot.SelectItemByWeight(); // 使用新方法名
+        // 因为钓上来的可能是鱼，也可能是垃圾，所以要做一次类型判断
+        MiniGameManager.CurrentFishData = selectedItem as FishData;
         MainMenuPanel.SetActive(false);//隐藏主菜单
         FishingUIPanel.SetActive(true);
         SpotTitleText.text = spotName;
