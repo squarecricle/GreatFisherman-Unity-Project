@@ -202,7 +202,6 @@ public class FishingMiniGameManager : MonoBehaviour
         if (_isCurrentlyOverlapping && !isOverlappingNow)
         {
             _progressDropCount++;
-            Debug.Log("脱钩发生！当前下降次数: " + _progressDropCount); // 添加日志方便我们调试
         }
 
         // 更新状态记录器，为下一帧做准备
