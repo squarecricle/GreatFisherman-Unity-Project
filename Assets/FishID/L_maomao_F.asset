@@ -1,29 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f3cc09d9dfaa104bb5d65f348c44e86, type: 3}
-  m_Name: L_maomao_F
-  m_EditorClassIdentifier: 
-  FishName: 
-  Description: 
-  FishIcon: {fileID: 0}
-  Rarity: 0
-  Location: 0
-  ApplicableTimeOfDay: 0
-  FishBehavior: 1
-  MoveSpeed: 150
-  MinPauseDuration: 0.5
-  MaxPauseDuration: 1.5
-  BaseSellPrice: 0
-  LengthRangeMianQiang: {x: 0, y: 0}
-  LengthRangeXiangMoXiangYang: {x: 0, y: 0}
-  LengthRangeShiShiDuiJue: {x: 0, y: 0}
-  LengthRangeChuiNiuZiBen: {x: 0, y: 0}
+version https://git-lfs.github.com/spec/v1
+oid sha256:791411f8379609d9da7226ea1f55671cb23527cb54841e699fd877535b79fa27
+size 766
