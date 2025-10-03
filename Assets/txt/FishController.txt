@@ -65,16 +65,13 @@ public class FishController : MonoBehaviour
         float halfFishHeight = _rectTransform.rect.height / 2;
         _fishMinYBoundary = -fishingAreaHeight / 2 + halfFishHeight;
         _fishMaxYBoundary = fishingAreaHeight / 2 - halfFishHeight;
+
         // --- 重置状态 ---
         // 【修改3】: 使用通用数据进行初始化。
         _currentSpeed = _currentCatchableData.BaseMoveSpeed;
         _currentActionIndex = 0;
-        // --- 【新逻辑】根据归一化参数，计算并设置初始位置 ---
-        // 使用 Mathf.Lerp 可以安全地在最小和最大边界之间进行插值。
-        // 当 InitialNormalizedPosition 为 0 时，结果为 _fishMinYBoundary (底部)。
-        // 当 InitialNormalizedPosition 为 1 时，结果为 _fishMaxYBoundary (顶部)。
-        float initialY = Mathf.Lerp(_fishMinYBoundary, _fishMaxYBoundary, _currentCatchableData.InitialNormalizedPosition);
-        _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, initialY);}
+        _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, 0); // 将可捕捉物重置到中心位置
+    }
 
     /// <summary>
     /// 开始执行鱼（可捕捉物）的行为逻辑协程。

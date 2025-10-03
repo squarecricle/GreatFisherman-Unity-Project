@@ -177,12 +177,12 @@ public class FishingMiniGameManager : MonoBehaviour
 
                 // 3. 显示鱼的结果
                 ResultStatusText.text = $"成功!\n品质: {finalQuality}\n长度: {finalLength:F2} cm";
-                Debug.Log($"渔获报告 - 鱼: {currentFish.ItemName} \n品质: {finalQuality},\n长度: {finalLength:F2} cm");
+                Debug.Log($"渔获报告 - 鱼: {currentFish.ItemName}, 品质: {finalQuality}, 长度: {finalLength:F2} cm");
             }
             else
             {
                 // 如果不是鱼（比如是垃圾、宝箱等），就显示通用成功信息
-                ResultStatusText.text = $"成功!\n获得了: \n{CurrentCatchableData.ItemName}";
+                ResultStatusText.text = $"成功!\n获得了: {CurrentCatchableData.ItemName}";
                 Debug.Log($"渔获报告 - 物品: {CurrentCatchableData.ItemName}");
             }
         }

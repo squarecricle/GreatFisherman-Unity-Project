@@ -17,9 +17,6 @@ public abstract class CatchableData : ScriptableObject
     public int BaseWeight = 100;
 
     [Header("迷你游戏行为参数")]
-    [Tooltip("该渔获物品在迷你游戏中的初始位置，0为最底部，1为最顶部")]
-    [Range(0, 1)]
-    public float InitialNormalizedPosition = 0.5f; // 默认值设为0.5，保持旧行为
     [Tooltip("物品的基础移动速度")]
     public float BaseMoveSpeed = 150f;
 

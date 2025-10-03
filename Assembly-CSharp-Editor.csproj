@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\FishDataEditor.cs" />
+    <Compile Include="Assets\Editor\ScriptConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -36,14 +36,14 @@ public class FishingSpot : MonoBehaviour
         if (selectedItem is FishData)
         {
             // 如果是鱼，才传递给GameManager
-            FishingGameManager.CurrentCatchableData = selectedItem;
+            FishingGameManager.CurrentCatchableData = selectedItem as FishData;
             Debug.Log($"一条 {(selectedItem as FishData).Rarity} 品质的鱼 '{selectedItem.ItemName}' 准备上钩!");
         }
         else
         {
             // 如果是垃圾或其他东西，我们暂时先清空GameManager中的鱼数据
             // 未来这里可以用来传递垃圾的数据
-            FishingGameManager.CurrentCatchableData = selectedItem;
+            FishingGameManager.CurrentCatchableData = null; // 或者传递一个代表垃圾的FishData
             Debug.Log($"一个 '{selectedItem.ItemName}' 准备上钩!");
         }
         
