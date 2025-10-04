@@ -13,17 +13,18 @@ public class PlayerBarController : MonoBehaviour//玩家控制的绿条
     private RectTransform _rectTransform; // 自身的RectTransform组件
 
     // 这个初始化方法由外部（GameManager）调用，告诉绿条它的活动范围
-    public void Initialize(float fishingAreaHeight)//"初始化"玩家控制的绿条
+    public void Initialize(float fishingAreaHeight, float initialY)//传入钓鱼区域的高度和初始位置
     {
-        _rectTransform = GetComponent<RectTransform>();//获取RectTransform组件
-        
+        _rectTransform = GetComponent<RectTransform>();
+
         float halfPlayerBarHeight = _rectTransform.rect.height / 2;
         _minY = -fishingAreaHeight / 2 + halfPlayerBarHeight;
         _maxY = fishingAreaHeight / 2 - halfPlayerBarHeight;
 
         // 重置速度和位置
         _verticalVelocity = 0f;
-        _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, 0);
+        // 2. 使用传入的 initialY 参数来设置初始位置，不再写死为0
+        _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, Mathf.Clamp(initialY, _minY, _maxY));
     }
 
     // 我们不再使用Update，而是创建一个由GameManager调用的公共方法

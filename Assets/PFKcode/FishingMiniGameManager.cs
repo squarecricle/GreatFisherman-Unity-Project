@@ -134,7 +134,7 @@ public class FishingMiniGameManager : MonoBehaviour
         CurrentMiniGameState = GameState.InProgress;
         ProgressBar.value = 0.25f; // 设置初始进度
         StopAllCoroutines(); // 停止可能正在“游荡”的旧协程。
-        
+
         _progressDropCount = 0; // 重置脱钩次数
         _isCurrentlyOverlapping = false; // 游戏开始时默认不在重叠区
 
@@ -144,11 +144,15 @@ public class FishingMiniGameManager : MonoBehaviour
 
         // 获取钓鱼区域的高度，用于计算边界
         _fishingAreaHeight = MiniGamePanel.GetComponent<RectTransform>().rect.height;
-        PlayerBarController.Initialize(_fishingAreaHeight); // 初始化玩家条的位置和范围
 
         // --- 【修改3】: 将通用 CatchableData 传递给 FishController ---
         FishController.Initialize(CurrentCatchableData, _fishingAreaHeight, this);
+
+        // 1. 获取鱼的初始Y坐标
+        // 2. 将 fishingAreaHeight 和鱼的初始坐标一起传给 PlayerBarController
+        PlayerBarController.Initialize(_fishingAreaHeight,FishController.InitialYPosition); 
         FishController.StartBehavior();
+        
     }
 
     /// <summary> 结束博弈游戏，结算输赢和战利品 </summary>

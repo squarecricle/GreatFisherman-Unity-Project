@@ -42,6 +42,7 @@ public class FishController : MonoBehaviour
     }
     #endregion
 
+    public float InitialYPosition { get; private set; }/// 缓存的初始Y坐标，在Initialize时被设置
     void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
@@ -74,6 +75,7 @@ public class FishController : MonoBehaviour
         // 当 InitialNormalizedPosition 为 0 时，结果为 _fishMinYBoundary (底部)。
         // 当 InitialNormalizedPosition 为 1 时，结果为 _fishMaxYBoundary (顶部)。
         float initialY = Mathf.Lerp(_fishMinYBoundary, _fishMaxYBoundary, _currentCatchableData.InitialNormalizedPosition);
+        this.InitialYPosition = initialY;// 缓存初始位置
         _rectTransform.anchoredPosition = new Vector2(_rectTransform.anchoredPosition.x, initialY);}
 
     /// <summary>
