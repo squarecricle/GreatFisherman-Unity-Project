@@ -130,3 +130,11 @@ public class TrashDataEditor : CatchableDataEditor
 {
     // 它也自动继承了父类的所有功能！
 }
+// TreasureChestDataEditor.cs
+
+[CustomEditor(typeof(TreasureChestData))]
+public class TreasureChestDataEditor : CatchableDataEditor
+{
+    // 完美！我们什么都不用写。
+    // 它会自动继承父类 CatchableDataEditor 的所有强大功能。
+}

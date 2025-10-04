@@ -10,12 +10,15 @@ using TMPro; // 引入TextMeshPro的命名空间
 public class FishingMiniGameManager : MonoBehaviour
 {
     #region 公有变量
+    [Header("系统关联")]
+    public GameFlowManager TheGameFlowManager;
+    public TreasureChestController TheTreasureChestController; 
+
     [Header("当前钓获物的数据")]
-    // --- 【修改1】: 持有的数据从 FishData 变为通用的 CatchableData ---
     public CatchableData CurrentCatchableData; // 当前正在钓的“可捕捉物”的配置数据。
 
     [Header("游戏对象关联")]
-    public GameFlowManager TheGameFlowManager;
+
     public GameObject MiniGamePanel;        // 整个钓鱼游戏UI的容器
     public Slider ProgressBar;              // 进度条
     public RectTransform PlayerBar;          // 玩家控制的绿条
@@ -182,6 +185,7 @@ public class FishingMiniGameManager : MonoBehaviour
                 // 3. 显示鱼的结果
                 ResultStatusText.text = $"成功!\n品质: {finalQuality}\n长度: {finalLength:F2} cm";
                 Debug.Log($"渔获报告 - 鱼: {currentFish.ItemName} \n品质: {finalQuality},\n长度: {finalLength:F2} cm");
+                TheTreasureChestController.TryToAwardChest();
             }
             else
             {
