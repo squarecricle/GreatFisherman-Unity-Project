@@ -16,8 +16,8 @@ public abstract class CatchableDataEditor : Editor
     protected ReorderableList _calmList;
     protected ReorderableList _struggleList;
 
-    private static List<System.Type> _fishActionTypes;
-    private static string[] _fishActionTypeNames;
+    private List<System.Type> _fishActionTypes;
+    private string[] _fishActionTypeNames;
 
     protected virtual void OnEnable()
     {
@@ -29,14 +29,11 @@ public abstract class CatchableDataEditor : Editor
         _struggleList = new ReorderableList(serializedObject, struggleBehaviorProp, true, true, true, true);
         SetupReorderableList(_struggleList, "挣扎行为序列 (Struggle Behavior)");
 
-        if (_fishActionTypes == null)//只有在缓存为空时，才执行耗时的反射查找
-        {
-            _fishActionTypes = System.AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsSubclassOf(typeof(FishAction)) && !type.IsAbstract)
-                .ToList();
-            _fishActionTypeNames = _fishActionTypes.Select(type => type.Name.Replace("_Action", "")).ToArray();
-        }
+        _fishActionTypes = System.AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => type.IsSubclassOf(typeof(FishAction)) && !type.IsAbstract)
+            .ToList();
+        _fishActionTypeNames = _fishActionTypes.Select(type => type.Name.Replace("_Action", "")).ToArray();
     }
 
     // 基类不再提供通用的OnInspectorGUI，由各个子类自己实现
