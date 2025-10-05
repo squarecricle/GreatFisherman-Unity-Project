@@ -6,7 +6,7 @@ using UnityEngine;
 // 注意这里的变化，它现在继承自我们新的基类！
 public class FishData : CatchableData 
 {
-    [Header("鱼类专属信息")] // 为了区分，我们可以加一个新的Header
+    [Header("稀有度")] // 为了区分，我们可以加一个新的Header
     public FishRarity Rarity;
     public enum FishRarity { 普通, 稀有, 史诗, 传说 }
 

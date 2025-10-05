@@ -139,6 +139,7 @@ public class TrashDataEditor : CatchableDataEditor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("Description"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("ItemIcon"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("BaseWeight"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("Rarity"));
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("博弈小游戏参数", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("InitialNormalizedPosition"));
