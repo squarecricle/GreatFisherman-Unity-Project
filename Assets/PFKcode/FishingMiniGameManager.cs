@@ -12,13 +12,13 @@ public class FishingMiniGameManager : MonoBehaviour
     #region 公有变量
     [Header("系统关联")]
     public GameFlowManager TheGameFlowManager;
-    public TreasureChestController TreasureChestController; 
+    public TreasureChestController TreasureChestController;
 
     [Header("当前钓获物的数据")]
     public CatchableData CurrentCatchableData; // 当前正在钓的“可捕捉物”的配置数据。
 
     [Header("游戏对象关联")]
-
+    public TextMeshProUGUI ChestLootText; // 【新】宝箱战利品文本
     public GameObject MiniGamePanel;        // 整个钓鱼游戏UI的容器
     public Slider ProgressBar;              // 进度条
     public RectTransform PlayerBar;          // 玩家控制的绿条
@@ -129,7 +129,7 @@ public class FishingMiniGameManager : MonoBehaviour
         // --- 【修改2】: 检查通用的 CurrentCatchableData 是否设置 ---
         if (CurrentCatchableData == null)
         {
-            Debug.LogError("错误：CurrentCatchableData 未设置！无法开始游戏。");
+            Debug.LogError("错误:CurrentCatchableData 未设置！无法开始游戏。");
             return; // 直接退出，不执行后续代码
         }
 
@@ -153,9 +153,9 @@ public class FishingMiniGameManager : MonoBehaviour
 
         // 1. 获取鱼的初始Y坐标
         // 2. 将 fishingAreaHeight 和鱼的初始坐标一起传给 PlayerBarController
-        PlayerBarController.Initialize(_fishingAreaHeight,FishController.InitialYPosition); 
+        PlayerBarController.Initialize(_fishingAreaHeight, FishController.InitialYPosition);
         FishController.StartBehavior();
-        
+
     }
 
     /// <summary> 结束博弈游戏，结算输赢和战利品 </summary>
@@ -186,10 +186,16 @@ public class FishingMiniGameManager : MonoBehaviour
                 ResultStatusText.text = $"成功!\n品质: {finalQuality}\n长度: {finalLength:F2} cm";
                 Debug.Log($"渔获报告 - 鱼: {currentFish.ItemName} \n品质: {finalQuality},\n长度: {finalLength:F2} cm");
                 TreasureChestController.TryToAwardChest();
+                var awardedChest = TreasureChestController.TryToAwardChest();
+                if (awardedChest != null)
+                {
+                    // 如果中奖了，就启动开箱序列的协程
+                    StartCoroutine(ChestOpeningSequenceCoroutine(awardedChest));
+                }
             }
             else
             {
-                // 如果不是鱼（比如是垃圾、宝箱等），就显示通用成功信息
+                // 如果不是鱼（比如是垃圾），就显示通用成功信息
                 ResultStatusText.text = $"成功!\n获得了: \n{CurrentCatchableData.ItemName}";
                 Debug.Log($"渔获报告 - 物品: {CurrentCatchableData.ItemName}");
             }
@@ -201,7 +207,6 @@ public class FishingMiniGameManager : MonoBehaviour
 
         // 停止所有游戏内活动
         FishController.StopBehavior();
-        StopAllCoroutines();
 
         // 隐藏游戏UI
         ProgressBar.gameObject.SetActive(false);
@@ -297,6 +302,10 @@ public class FishingMiniGameManager : MonoBehaviour
         PutInBackpackButton.gameObject.SetActive(false);
         ReturnToMenuButton.gameObject.SetActive(false);
         HideGameplayUI();
+        if (ChestLootText != null) 
+        {
+            ChestLootText.gameObject.SetActive(false);
+        }
     }
 
     /// <summary> 显示博弈玩法相关UI </summary>
@@ -322,5 +331,53 @@ public class FishingMiniGameManager : MonoBehaviour
         public FishData FishedData; // 钓上来的鱼的原始数据
         public FishingMiniGameManager.FishQuality FishedQuality; // 成品鱼品质
         public float Length; // 根据品质计算出的最终长度
+    }
+
+    /// 【新】协程：处理宝箱开箱序列
+    /// <summary>
+    /// 【新】处理宝箱开启流程的协程（动画、UI、音效的预留位）
+    /// </summary>
+    private IEnumerator ChestOpeningSequenceCoroutine(TreasureChestData chest)
+    {
+        Debug.Log($"恭喜！额外获得了宝箱：{chest.ItemName}!");
+        // --- 这里是未来播放“获得宝箱”动画和音效的地方 ---
+
+        // 1. 等待一段时间，让玩家先看清楚鱼的收获
+        yield return new WaitForSeconds(1.0f); 
+
+        // 2. 准备并激活宝箱UI
+        ChestLootText.gameObject.SetActive(true);
+        ChestLootText.rectTransform.localScale = Vector3.zero; // 初始大小为0，为动画做准备
+
+        // 3. 生成战利品列表字符串
+        string lootText = $"打开 {chest.ItemName} 获得了:\n";
+        int lootCount = Random.Range(chest.LootCountRange.x, chest.LootCountRange.y + 1);
+        for (int i = 0; i < lootCount; i++)
+        {
+            if (chest.LootPool != null && chest.LootPool.Count > 0)
+            {
+                var randomItem = chest.LootPool[Random.Range(0, chest.LootPool.Count)];// 从战利品池中随机选一个
+                lootText += $"- {randomItem.ItemName}\n";// 添加到文本
+            }
+        }
+        ChestLootText.text = lootText;// 显示战利品文本
+
+        // 4. 【简易动画】播放字体由小到大的动画
+        float duration = 0.5f;
+        float timer = 0f;
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float progress = timer / duration;
+            ChestLootText.rectTransform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, progress);// 线性插值
+            yield return null;//让while循环每帧只执行一次
+        }
+        ChestLootText.rectTransform.localScale = Vector3.one; // 确保最终是准确大小
+
+        // 5. 再等待几秒，让玩家阅读
+        yield return new WaitForSeconds(4.0f);
+
+        // 6. 隐藏UI，结束序列
+        ChestLootText.gameObject.SetActive(false);
     }
 }

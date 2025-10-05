@@ -1,4 +1,4 @@
-// 文件名建议为 CatchableDataEditor.cs (放在Editor文件夹内)
+// 文件名: CatchableEditor.cs
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
@@ -6,27 +6,26 @@ using System.Linq;
 using UnityEditorInternal;
 
 // =======================================================================
-// 1. 这是“父编辑器”，包含了所有通用的绘制逻辑
-// 注意：这个父类前面没有 [CustomEditor] 属性
+// 1. 基类编辑器：负责提供公共变量和列表绘制逻辑
 // =======================================================================
 public abstract class CatchableDataEditor : Editor
 {
+    // 改为 protected，以便子类可以访问
     protected SerializedProperty calmBehaviorProp;
     protected SerializedProperty struggleBehaviorProp;
+    protected ReorderableList _calmList;
+    protected ReorderableList _struggleList;
 
-    private ReorderableList _calmList;
-    private ReorderableList _struggleList;
     private List<System.Type> _fishActionTypes;
     private string[] _fishActionTypeNames;
 
     protected virtual void OnEnable()
     {
-        calmBehaviorProp = serializedObject.FindProperty("CalmBehaviorSequence");
+        calmBehaviorProp = serializedObject.FindProperty("CalmBehaviorSequence");//
         struggleBehaviorProp = serializedObject.FindProperty("StruggleBehaviorSequence");
 
         _calmList = new ReorderableList(serializedObject, calmBehaviorProp, true, true, true, true);
         SetupReorderableList(_calmList, "冷静行为序列 (Calm Behavior)");
-
         _struggleList = new ReorderableList(serializedObject, struggleBehaviorProp, true, true, true, true);
         SetupReorderableList(_struggleList, "挣扎行为序列 (Struggle Behavior)");
 
@@ -34,36 +33,23 @@ public abstract class CatchableDataEditor : Editor
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => type.IsSubclassOf(typeof(FishAction)) && !type.IsAbstract)
             .ToList();
-
         _fishActionTypeNames = _fishActionTypes.Select(type => type.Name.Replace("_Action", "")).ToArray();
     }
 
+    // 基类不再提供通用的OnInspectorGUI，由各个子类自己实现
     public override void OnInspectorGUI()
     {
-        serializedObject.Update();
-        
-        // 绘制除了行为列表之外的所有其他属性
-        DrawPropertiesExcluding(serializedObject, "CalmBehaviorSequence", "StruggleBehaviorSequence", "m_Script");
-
-        EditorGUILayout.Space(); // 加个间距，更美观
-
-        // 绘制行为列表
-        _calmList.DoLayoutList();
-        _struggleList.DoLayoutList();
-
-        serializedObject.ApplyModifiedProperties();
+        EditorGUILayout.LabelField("这是一个CatchableData的基类编辑器。");
     }
 
-    private void SetupReorderableList(ReorderableList list, string headerText)
+    private void SetupReorderableList(ReorderableList list, string headerText)//绘制多行为序列
     {
         list.drawHeaderCallback = (Rect rect) => EditorGUI.LabelField(rect, headerText);
-
         list.elementHeightCallback = (int index) =>
         {
             SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);
             return EditorGUI.GetPropertyHeight(element, GUIContent.none, true) + 4f;
         };
-
         list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
         {
             SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);
@@ -72,7 +58,6 @@ public abstract class CatchableDataEditor : Editor
             string title = GetElementTitle(element);
             EditorGUI.PropertyField(new Rect(rect.x, rect.y + 2f, rect.width, EditorGUIUtility.singleLineHeight), element, new GUIContent(title), true);
         };
-
         list.onAddDropdownCallback = (Rect buttonRect, ReorderableList l) =>
         {
             var menu = new GenericMenu();
@@ -113,28 +98,83 @@ public abstract class CatchableDataEditor : Editor
 
 
 // =======================================================================
-// 2. 这是FishData的“子编辑器”，非常简洁
+// 2. FishData的子编辑器：绘制所有属性
 // =======================================================================
 [CustomEditor(typeof(FishData))]
 public class FishDataEditor : CatchableDataEditor
 {
-    // 它自动继承了父类的所有功能，我们什么都不用写！
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+
+        // 使用DrawPropertiesExcluding可以方便地绘制所有属性，除了我们想手动处理的
+        DrawPropertiesExcluding(serializedObject, "m_Script", "CalmBehaviorSequence", "StruggleBehaviorSequence");
+
+        EditorGUILayout.Space();
+        
+        // 手动绘制行为列表
+        _calmList.DoLayoutList();
+        _struggleList.DoLayoutList();
+
+        serializedObject.ApplyModifiedProperties();
+    }
 }
 
 
 // =======================================================================
-// 3. 这是TrashData的“子编辑器”，同样非常简洁
+// 3. TrashData的子编辑器：只绘制CatchableData中的通用属性
 // =======================================================================
 [CustomEditor(typeof(TrashData))]
 public class TrashDataEditor : CatchableDataEditor
 {
-    // 它也自动继承了父类的所有功能！
-}
-// TreasureChestDataEditor.cs
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+        
+        EditorGUILayout.LabelField("垃圾：作为可钓物参与博弈", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("ItemName"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("Description"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("ItemIcon"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("BaseWeight"));
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("博弈小游戏参数", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("InitialNormalizedPosition"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("BaseMoveSpeed"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("StruggleThreshold"));
 
+        EditorGUILayout.Space();
+
+        // 绘制行为列表
+        _calmList.DoLayoutList();
+        _struggleList.DoLayoutList();
+
+        serializedObject.ApplyModifiedProperties();
+    }
+}
+
+
+// =======================================================================
+// 4. TreasureChestData的子编辑器：只绘制核心信息和宝箱专属属性
+// =======================================================================
 [CustomEditor(typeof(TreasureChestData))]
 public class TreasureChestDataEditor : CatchableDataEditor
 {
-    // 完美！我们什么都不用写。
-    // 它会自动继承父类 CatchableDataEditor 的所有强大功能。
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+
+        EditorGUILayout.LabelField("宝箱：作为额外奖励出现", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("ItemName"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("Description"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("ItemIcon"));
+        
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("宝箱专属设置", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("Tier"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("DropChance"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("LootCountRange"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("LootPool"));
+
+        serializedObject.ApplyModifiedProperties();
+    }
 }
