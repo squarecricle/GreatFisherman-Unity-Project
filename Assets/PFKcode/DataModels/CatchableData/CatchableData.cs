@@ -9,12 +9,14 @@ public abstract class CatchableData : ScriptableObject
     public string ItemName;
     [TextArea] public string Description;
     public Sprite ItemIcon;
-    
-    // 我们为所有可捕获物定义一个“权重”，用于计算产出概率。
-    // 对于鱼来说，它可以是稀有度；对于垃圾，我们可以直接设定一个值。
+    [Tooltip("物品的基础售价，单位为金币")]
+    public int BasePrice = 10;
     [Header("产出权重")]
     [Tooltip("该物品在奖池中的基础权重值，越高越常见")]
     public int BaseWeight = 100;
+    public enum ItemCategory { Fish, Trash, Material, Rod }
+    [Tooltip("此物品的分类")]
+    public ItemCategory category;
 
     [Header("迷你游戏行为参数")]
     [Tooltip("该渔获物品在迷你游戏中的初始位置，0为最底部，1为最顶部")]

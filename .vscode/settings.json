@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "GreatFinsherman.sln"
+    "dotnet.defaultSolution": "GreatFinsherman.sln",
+    "chat.agent.maxRequests": 1000
 }

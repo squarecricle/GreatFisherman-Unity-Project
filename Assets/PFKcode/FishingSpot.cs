@@ -1,28 +1,29 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class FishingSpot : MonoBehaviour
 {
     [Header("系统关联")]
-    public FishingMiniGameManager FishingGameManager;
-    public GameObject StartFishingButton;
-    public CastingAndHookingController CastingController;
+    [SerializeField, FormerlySerializedAs("FishingGameManager")] private FishingMiniGameManager fishingGameManager;
+    [SerializeField, FormerlySerializedAs("StartFishingButton")] private GameObject startFishingButton;
+    [SerializeField, FormerlySerializedAs("CastingController")] private CastingAndHookingController castingController;
 
     [Header("奖池配置")]
     // --- 【修改1】: 列表类型和名字都变了 ---
-    public List<CatchableData> LootPool; // 不再是 FishPool，而是通用的 LootPool
+    [SerializeField, FormerlySerializedAs("LootPool")] private List<CatchableData> lootPool; // 不再是 FishPool，而是通用的 LootPool
 
     public void StartFishing()
     {
         // 检查必要的组件是否都已关联
-        if (CastingController == null || LootPool == null || LootPool.Count == 0)
+        if (castingController == null || lootPool == null || lootPool.Count == 0)
         {
             Debug.LogError("FishingSpot 配置不完整! 请检查 CastingController 和 LootPool。");
             return;
         }
 
         // 隐藏“开始钓鱼”按钮
-        StartFishingButton.SetActive(false);
+        startFishingButton.SetActive(false);
         // --- 核心产出逻辑修改 ---
         CatchableData selectedItem = SelectItemByWeight(); // 调用我们新的方法
         if (selectedItem == null)
@@ -36,19 +37,19 @@ public class FishingSpot : MonoBehaviour
         if (selectedItem is FishData)
         {
             // 如果是鱼，才传递给GameManager
-            FishingGameManager.CurrentCatchableData = selectedItem;
+            fishingGameManager.CurrentCatchableData = selectedItem;
             Debug.Log($"一条 {(selectedItem as FishData).Rarity} 品质的鱼 '{selectedItem.ItemName}' 准备上钩!");
         }
         else
         {
             // 如果是垃圾或其他东西，我们暂时先清空GameManager中的鱼数据
             // 未来这里可以用来传递垃圾的数据
-            FishingGameManager.CurrentCatchableData = selectedItem;
+            fishingGameManager.CurrentCatchableData = selectedItem;
             Debug.Log($"一个 '{selectedItem.ItemName}' 准备上钩!");
         }
         
         // 2. 开始抛竿过程
-        CastingController.StartCastingProcess();
+        castingController.StartCastingProcess();
     }
 
     // --- 【修改2】: 整个权重挑选方法被重写，变得更通用 ---
@@ -60,7 +61,7 @@ public class FishingSpot : MonoBehaviour
     {
         // --- 步骤 a: 计算总权重 ---
         int totalWeight = 0;
-        foreach (CatchableData item in LootPool)
+        foreach (CatchableData item in lootPool)
         {
             totalWeight += item.BaseWeight; // 直接使用基类里的BaseWeight
         }
@@ -71,7 +72,7 @@ public class FishingSpot : MonoBehaviour
         int randomWeight = Random.Range(0, totalWeight);
         
         // --- 步骤 c: 遍历所有物品，看随机数落入哪个区间 ---
-        foreach (CatchableData item in LootPool)
+    foreach (CatchableData item in lootPool)
         {
             // 如果随机数小于当前物品的权重，就选中这个物品
             if (randomWeight < item.BaseWeight)
@@ -91,6 +92,6 @@ public class FishingSpot : MonoBehaviour
     // 当钓鱼环节结束时调用，让开始按钮重新出现
     public void OnFishingSessionEnd()
     {
-        StartFishingButton.SetActive(true);
+        startFishingButton.SetActive(true);
     }
 }

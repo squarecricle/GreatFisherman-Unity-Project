@@ -3,6 +3,7 @@ using UnityEngine.UI; // 引入UI命名空间
 using System.Collections; // 引入协程命名空间
 using System.Collections.Generic;
 using TMPro; // 引入TextMeshPro的命名空间
+using UnityEngine.Serialization;
 
 /// <summary>
 /// 迷你游戏的管理脚本，控制整个钓鱼博弈的流程、状态和进度。
@@ -11,21 +12,43 @@ public class FishingMiniGameManager : MonoBehaviour
 {
     #region 公有变量
     [Header("系统关联")]
-    public GameFlowManager TheGameFlowManager;
-    public TreasureChestController TreasureChestController;
+    [SerializeField, FormerlySerializedAs("TheGameFlowManager")] private GameFlowManager gameFlowManager;
+    [SerializeField, FormerlySerializedAs("TreasureChestController")] private TreasureChestController treasureChestController;
+
+    [Tooltip("对库存管理器的引用")]
+    [SerializeField, FormerlySerializedAs("TheInventoryManager")] private InventoryManager inventoryManager; // 【新增】对InventoryManager的引用
 
     [Header("当前钓获物的数据")]
-    public CatchableData CurrentCatchableData; // 当前正在钓的“可捕捉物”的配置数据。
+    [SerializeField, FormerlySerializedAs("CurrentCatchableData")] private CatchableData currentCatchableData; // 当前正在钓的“可捕捉物”的配置数据。
+    public CatchableData CurrentCatchableData
+    {
+        get => currentCatchableData;
+        set => currentCatchableData = value;
+    }
 
     [Header("游戏对象关联")]
-    public TextMeshProUGUI ChestLootText; // 【新】宝箱战利品文本
-    public GameObject MiniGamePanel;        // 整个钓鱼游戏UI的容器
-    public Slider ProgressBar;              // 进度条
-    public RectTransform PlayerBar;          // 玩家控制的绿条
-    public TextMeshProUGUI ResultStatusText; // 结果状态文本
-    public PlayerBarController PlayerBarController; // 玩家控制的绿条脚本
-    public Button CloseMiniGameButton;      // 开始/关闭按钮（虽然在InProgress时隐藏）
-    public FishController FishController;    // 鱼/可捕捉物的图标脚本
+    [SerializeField, FormerlySerializedAs("ChestLootText")] private TextMeshProUGUI chestLootText; // 【新】宝箱战利品文本
+    [SerializeField, FormerlySerializedAs("MiniGamePanel")] private GameObject miniGamePanel;        // 整个钓鱼游戏UI的容器
+    [SerializeField, FormerlySerializedAs("ProgressBar")] private Slider progressBar;              // 进度条
+    [SerializeField, FormerlySerializedAs("PlayerBar")] private RectTransform playerBar;          // 玩家控制的绿条
+    [SerializeField, FormerlySerializedAs("ResultStatusText")] private TextMeshProUGUI resultStatusText; // 结果状态文本
+    [SerializeField, FormerlySerializedAs("PlayerBarController")] private PlayerBarController playerBarController; // 玩家控制的绿条脚本
+    [SerializeField, FormerlySerializedAs("CloseMiniGameButton")] private Button closeMiniGameButton;      // 开始/关闭按钮（虽然在InProgress时隐藏）
+    [SerializeField, FormerlySerializedAs("FishController")] private FishController fishController;    // 鱼/可捕捉物的图标脚本
+
+    public GameFlowManager GameFlowManager => gameFlowManager;
+    public TreasureChestController TreasureChestController => treasureChestController;
+    public InventoryManager InventoryManager => inventoryManager;
+    public Slider ProgressBar => progressBar;
+    public RectTransform PlayerBar => playerBar;
+    public PlayerBarController PlayerBarController => playerBarController;
+    public FishController FishController => fishController;
+    public TextMeshProUGUI ChestLootText => chestLootText;
+    public GameObject MiniGamePanel => miniGamePanel;
+    public TextMeshProUGUI ResultStatusText => resultStatusText;
+    public Button CloseMiniGameButton => closeMiniGameButton;
+    public GameFlowManager TheGameFlowManager => gameFlowManager;
+    public InventoryManager TheInventoryManager => inventoryManager;
 
     /// <summary> 我们用一个公开的枚举来定义所有可能的游戏状态 </summary>
     public enum GameState
@@ -35,16 +58,21 @@ public class FishingMiniGameManager : MonoBehaviour
         Success,    // 成功
         Failed      // 失败
     }
-    public GameState CurrentMiniGameState; // 创建一个变量来存储当前的状态
+    public GameState CurrentMiniGameState { get; private set; } // 创建一个变量来存储当前的状态
     public enum FishQuality { 吹牛资本, 史诗对决, 像模像样, 勉强上钩 }
 
     [Header("结果界面按钮")]
-    public Button PutInBackpackButton; // “放入背包”按钮
-    public Button ReturnToMenuButton;  // “返回主菜单”按钮
+    [SerializeField, FormerlySerializedAs("PutInBackpackButton")] private Button putInBackpackButton; // “放入背包”按钮
+    [SerializeField, FormerlySerializedAs("ReturnToMenuButton")] private Button returnToMenuButton;  // “返回主菜单”按钮
+
+    public Button PutInBackpackButton => putInBackpackButton;
+    public Button ReturnToMenuButton => returnToMenuButton;
 
     [Header("游戏参数 - 可在Inspector中调整")]
-    public float ProgressIncreaseRate = 0.2f; // 进度条增长速率
-    public float ProgressDecreaseRate = 0.1f; // 进度条衰减速率
+    [SerializeField, FormerlySerializedAs("ProgressIncreaseRate")] private float progressIncreaseRate = 0.2f; // 进度条增长速率
+    [SerializeField, FormerlySerializedAs("ProgressDecreaseRate")] private float progressDecreaseRate = 0.1f; // 进度条衰减速率
+    public float ProgressIncreaseRate => progressIncreaseRate;
+    public float ProgressDecreaseRate => progressDecreaseRate;
     #endregion
 
     #region 私有变量
@@ -165,8 +193,6 @@ public class FishingMiniGameManager : MonoBehaviour
 
         if (success)
         {
-            // --- 【修改4】: 关键！判断钓上来的到底是不是鱼 ---
-            // 只有是 FishData 实例时，才进行品质和长度的特殊计算
             if (CurrentCatchableData is FishData)
             {
                 // 如果是鱼，才执行鱼的品质和长度计算
@@ -185,6 +211,22 @@ public class FishingMiniGameManager : MonoBehaviour
                 // 3. 显示鱼的结果
                 ResultStatusText.text = $"成功!\n品质: {finalQuality}\n长度: {finalLength:F2} cm";
                 Debug.Log($"渔获报告 - 鱼: {currentFish.ItemName} \n品质: {finalQuality},\n长度: {finalLength:F2} cm");
+                // 将渔获结果打包，并发送给InventoryManager
+                var result = new CatchResult
+                {
+                    FishedData = currentFish,
+                    FishedQuality = finalQuality,
+                    Length = finalLength
+                };
+                // 安全检查，确保TheInventoryManager已经从编辑器关联
+                if (TheInventoryManager != null)
+                {
+                    TheInventoryManager.AddItem(result);
+                }
+                else
+                {
+                    Debug.LogError("FishingMiniGameManager中的TheInventoryManager未设置引用!");
+                }
                 TreasureChestController.TryToAwardChest();
                 var awardedChest = TreasureChestController.TryToAwardChest();
                 if (awardedChest != null)
@@ -302,7 +344,7 @@ public class FishingMiniGameManager : MonoBehaviour
         PutInBackpackButton.gameObject.SetActive(false);
         ReturnToMenuButton.gameObject.SetActive(false);
         HideGameplayUI();
-        if (ChestLootText != null) 
+        if (ChestLootText != null)
         {
             ChestLootText.gameObject.SetActive(false);
         }
@@ -332,6 +374,7 @@ public class FishingMiniGameManager : MonoBehaviour
         public FishingMiniGameManager.FishQuality FishedQuality; // 成品鱼品质
         public float Length; // 根据品质计算出的最终长度
     }
+    
 
     /// 【新】协程：处理宝箱开箱序列
     /// <summary>
@@ -343,7 +386,7 @@ public class FishingMiniGameManager : MonoBehaviour
         // --- 这里是未来播放“获得宝箱”动画和音效的地方 ---
 
         // 1. 等待一段时间，让玩家先看清楚鱼的收获
-        yield return new WaitForSeconds(1.0f); 
+        yield return new WaitForSeconds(1.0f);
 
         // 2. 准备并激活宝箱UI
         ChestLootText.gameObject.SetActive(true);
@@ -380,4 +423,5 @@ public class FishingMiniGameManager : MonoBehaviour
         // 6. 隐藏UI，结束序列
         ChestLootText.gameObject.SetActive(false);
     }
+    
 }
