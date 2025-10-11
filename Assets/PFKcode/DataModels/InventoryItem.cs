@@ -1,8 +1,9 @@
 using UnityEngine;
-
-// 我们使用 [System.Serializable] 让Unity能够序列化（保存）这个类的数据。
+/// <summary>
+/// 背包中某种物品及其数量的数据实例，记录了数量、价格、来源等信息。
+/// </summary>
 [System.Serializable] 
-public class InventoryItem   // 背包中的单格物品实例
+public class InventoryItem
 {
     // 对应ScriptableObject的数据模板，用于查找物品的通用信息（名字、图标等）
     public CatchableData sourceData; 

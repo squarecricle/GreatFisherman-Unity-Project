@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+/// <summary>
+/// 负责管理玩家的库存所有物品（包括鱼、垃圾、材料、钓竿），包括添加物品、出售物品等功能。
+/// </summary>
 public class InventoryManager : MonoBehaviour
 {
     // 使用Dictionary来存储物品，Key是物品的唯一ID，Value(InventoryItem)是物品实例
@@ -65,13 +68,14 @@ public class InventoryManager : MonoBehaviour
 
         // 2. 清空字典
         _items.Clear();
-        
+
         // 3. 返回总金额
         return totalValue;
     }
         
     /// <summary>
-    /// 根据分类获取物品列表
+    /// 根据物品分类值
+    /// 返回所有属于该分类的物品列表,目前有四种列表：鱼、垃圾、材料、钓竿
     /// </summary>
     public List<InventoryItem> GetItemsByCategory(CatchableData.ItemCategory category)
     {
