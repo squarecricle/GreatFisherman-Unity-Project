@@ -6,7 +6,7 @@
 - **主场景**：`Assets/Scenes/SampleScene.unity`，完整捕鱼流程入口。
 - **核心管理器**：
   - `Assets/PFKcode/Manager/GameFlowManager.cs`：全局流程与 UI/场景切换。
-  - `Assets/PFKcode/Manager/FishingMiniGameManager.cs`：小游���主控，调度 ProgressBar、PlayerBarController、FishController。
+  - `Assets/PFKcode/Manager/FishingMiniGameManager.cs`：小游戏主控，调度 ProgressBar、PlayerBarController、FishController。
   - `Assets/PFKcode/Controller/FishController.cs`：鱼的行为、边界、生命周期（`Initialize()` 参数关键）。
   - `Assets/PFKcode/Manager/InventoryManager.cs`、`Assets/PFKcode/Controller/TreasureChestController.cs`：掉落、背包、宝箱集成。
 - **数据驱动**：
