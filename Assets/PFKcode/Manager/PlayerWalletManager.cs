@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerWalletManager : MonoBehaviour
+public class PlayerWallet : MonoBehaviour
 {
     public int currentGold;
 
@@ -9,9 +9,8 @@ public class PlayerWalletManager : MonoBehaviour
     /// </summary>
     public void AddGold(int amount)
     {
-        // TODO: 阶段二实现
-        // currentGold += amount;
+        currentGold += amount;//在目前的金币上增加amount
         // 更新UI显示
-    Debug.Log($"【PlayerWalletManager】增加了 {amount} 金币。当前总计: {currentGold + amount}");
+        Debug.Log($"【PlayerWallet  】增加了 {amount} 金币。当前总计: {currentGold}");
     }
 }

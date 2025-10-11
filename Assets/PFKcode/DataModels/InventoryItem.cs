@@ -45,7 +45,7 @@ public class FishInventoryItem : InventoryItem
         {
             if (sourceData == null) return 0;
             
-            float qualityMultiplier = 1.0f; // 品质的價格倍率
+            float qualityMultiplier = 1.0f; // 品质的价格倍率
             switch (quality)
             {
                 case FishingMiniGameManager.FishQuality.吹牛资本:
