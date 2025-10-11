@@ -51,17 +51,3 @@
 
  如需具体代码片段或补丁示例，请说明目标文件或功能点。
 
-### 六、简明类比解释方法（面向初学者）
-- 当遇到复杂的代码结构（如 `Dictionary<string, InventoryItem>`）时，使用多行简单语句做类比：
-- `private int count = 1;`  
-  - 单一整数变量，类似“数量”。
-- `private string name = "Bob";`  
-  - 单一字符串变量，表示文本值。
-- `private List<InventoryItem> items = new List<InventoryItem>();`  
-  - 列表按顺序存储，多次查找需要遍历，时间复杂度 O(n)。
-- `private Dictionary<string, int> counts = new Dictionary<string, int>();`  
-  - 字典：键是名称，值是数量；查找/更新均为 O(1)。
-- `private Dictionary<string, InventoryItem> _items = new Dictionary<string, InventoryItem>();`  
-  - 实际用法：键（string）是物品 ID 或名称，值（InventoryItem）保存物品信息，支持快速添加、查找、更新。
-
-- 对每一句简单示例，都附带一句简短注释，帮助初学者建立从“简单语句”到“项目代码”的映射关系。
