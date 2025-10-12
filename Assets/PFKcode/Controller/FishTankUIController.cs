@@ -81,7 +81,7 @@ public class FishTankUIController : MonoBehaviour
                 // b. 获取预制件上的FishTankItemUI脚本（目的是为了显示鱼的详细信息）
                 FishTankItemUI itemUI = itemGO.GetComponent<FishTankItemUI>();
                 
-                // c. 类型转换并传递数据进行设置
+                // c. 调用Setup方法，传入鱼的实例数据，设置UI显示
                 // 我们确定这里的数据都是鱼，所以可以安全地进行(FishInventoryItem)类型转换
                 itemUI.Setup(item as FishInventoryItem);
             }
