@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Text;
-using System.Linq; // 用于方便地获取最后一个元素
+using System.Linq;
 
 /// <summary>
 /// 将项目中 Assets 文件夹下的所有 C# 脚本结构导出为 Markdown 文件。
@@ -35,7 +35,8 @@ public class ScriptTreeExporter
         // 3. 从 Assets 根目录开始递归遍历
         // Application.dataPath 指向项目 Assets 文件夹的绝对路径
         sb.AppendLine("Assets");
-        BuildDirectoryTree(Application.dataPath, "", sb);
+        // --- 修改点: 初始调用传入深度 0 ---
+        BuildDirectoryTree(Application.dataPath, 0, sb);
 
         sb.AppendLine("```"); // Markdown代码块结束
 
@@ -57,39 +58,39 @@ public class ScriptTreeExporter
     /// 递归函数，用于构建目录和文件的文本树
     /// </summary>
     /// <param name="directoryPath">当前要处理的目录路径</param>
-    /// <param name="prefix">用于绘制树状结构的前缀字符串</param>
+    /// <param name="depth">当前目录的深度</param>
     /// <param name="sb">字符串构建器</param>
-    private static void BuildDirectoryTree(string directoryPath, string prefix, StringBuilder sb)
+    // --- 修改点: 函数签名改为接收 depth 而不是 prefix ---
+    private static void BuildDirectoryTree(string directoryPath, int depth, StringBuilder sb)
     {
         // --- 1. 获取当前目录下的所有子目录 ---
-        // 过滤掉我们不关心的目录，例如版本控制或库文件
         string[] subDirectories = Directory.GetDirectories(directoryPath)
             .Where(d => !Path.GetFileName(d).StartsWith(".") && !Path.GetFileName(d).StartsWith("Packages")).ToArray();
         
         // --- 2. 获取当前目录下的所有 .cs 脚本文件 ---
         string[] scriptFiles = Directory.GetFiles(directoryPath, "*.cs");
 
-        // 合并目录和文件，统一处理，目录在前，文件在后
+        // 合并目录和文件，统一处理
         var entries = subDirectories.Select(d => new { Path = d, IsDirectory = true })
             .Concat(scriptFiles.Select(f => new { Path = f, IsDirectory = false }))
             .ToList();
 
-        // --- 3. 遍历所有条目（目录和文件） ---
-        for (int i = 0; i < entries.Count; i++)
+        // --- 3. 遍历所有条目 ---
+        foreach (var entry in entries)
         {
-            var entry = entries[i];
-            bool isLast = (i == entries.Count - 1);
+            // --- 核心修改: 使用与 HierarchyExporter 相同的缩进逻辑 ---
+            // 根据深度创建前置空格，每级深度增加2个空格
+            string indent = new string(' ', depth * 2);
+            // 统一使用 "└─ " 作为层级符号
+            string prefix = "└─ ";
 
-            // a. 构建当前行的前缀
-            string linePrefix = prefix + (isLast ? "└─ " : "├─ ");
-            sb.AppendLine(linePrefix + Path.GetFileName(entry.Path));
+            // 拼接并添加行
+            sb.AppendLine($"{indent}{prefix}{Path.GetFileName(entry.Path)}");
 
-            // b. 如果是目录，则递归进入下一层
+            // 如果是目录，则递归进入下一层，深度+1
             if (entry.IsDirectory)
             {
-                // 计算下一层递归的前缀
-                string nextPrefix = prefix + (isLast ? "   " : "│  ");
-                BuildDirectoryTree(entry.Path, nextPrefix, sb);
+                BuildDirectoryTree(entry.Path, depth + 1, sb);
             }
         }
     }

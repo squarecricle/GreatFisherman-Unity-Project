@@ -1,8 +1,11 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using System.Text; // 需要引入这个来使用 StringBuilder
+using System.Text;
 
+/// <summary>
+/// 将指定文件夹内的所有 C# 脚本合并到一个 TXT 文件中。
+/// </summary>
 public class ScriptMerger
 {
     // 在Unity顶部菜单栏创建一个名为 "Tools" 的菜单，内有一个 "合并脚本到单个TXT" 的选项
@@ -18,7 +21,6 @@ public class ScriptMerger
         }
 
         // 2. 让用户选择保存合并后 .txt 文件的路径和文件名
-        //    与原代码不同，这里使用 SaveFilePanel 来指定一个确切的文件，而不是文件夹
         string destinationPath = EditorUtility.SaveFilePanel("选择保存合并后 TXT 的路径", Application.dataPath, "Merged_Scripts", "txt");
         if (string.IsNullOrEmpty(destinationPath))
         {
@@ -42,29 +44,41 @@ public class ScriptMerger
             // 4. 使用 StringBuilder 高效地拼接所有文件内容
             StringBuilder mergedContent = new StringBuilder();
             
+            // --- 新增部分：在文件开头生成脚本索引 ---
+            mergedContent.AppendLine("### Merged Scripts Index ###");
+            mergedContent.AppendLine("```"); // 使用代码块以获得更好的格式
             foreach (string sourceFile in scriptFiles)
             {
-                // 获取文件名，用于在合并文件中作为标题
+                // 只显示文件名
+                mergedContent.AppendLine($"└─ {Path.GetFileName(sourceFile)}");
+            }
+            mergedContent.AppendLine("```");
+            mergedContent.AppendLine();
+            mergedContent.AppendLine("---"); // 添加一个分隔线
+            mergedContent.AppendLine();
+            // --- 索引生成结束 ---
+
+            // 5. 遍历并拼接每个文件的具体内容
+            foreach (string sourceFile in scriptFiles)
+            {
                 string fileName = Path.GetFileName(sourceFile);
-                
-                // 读取当前脚本文件的所有内容
                 string fileContent = File.ReadAllText(sourceFile);
 
                 // --- 拼接格式 ---
+                // 保留清晰的文件内容分隔符
                 mergedContent.AppendLine($"// ---------- SCRIPT START: {fileName} ---------- //");
-                mergedContent.AppendLine(); // 加一个空行
-                mergedContent.Append(fileContent); // 附加文件内容
-                mergedContent.AppendLine(); // 加一个空行
-                mergedContent.AppendLine($"// ----------- SCRIPT END: {fileName} ----------- //");
-                mergedContent.AppendLine(); // 加两个空行，让文件之间分隔更清晰
+                mergedContent.AppendLine();
+                mergedContent.Append(fileContent);
                 mergedContent.AppendLine(); 
+                mergedContent.AppendLine($"// ----------- SCRIPT END: {fileName} ----------- //");
+                mergedContent.AppendLine();
+                mergedContent.AppendLine();
             }
             
-            // 5. 将拼接好的所有内容一次性写入目标文件
-            //    这比多次写入文件效率更高
+            // 6. 将拼接好的所有内容一次性写入目标文件
             File.WriteAllText(destinationPath, mergedContent.ToString());
             
-            // 6. 显示成功信息
+            // 7. 显示成功信息
             int mergedCount = scriptFiles.Length;
             EditorUtility.DisplayDialog("合并成功", $"成功将 {mergedCount} 个 C# 脚本文件合并为一个 .txt 文件！\n\n文件已保存至：\n{destinationPath}", "太棒了！");
             Debug.Log($"合并完成！总共合并了 {mergedCount} 个文件。");

@@ -48,10 +48,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
+    <Compile Include="Assets\PFKcode\Core\Managers\TimeManager.cs" />
     <Compile Include="Assets\PFKcode\UI\Components\FishTankItemUI.cs" />
     <Compile Include="Assets\PFKcode\UI\Components\FishingSpot.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
     <Compile Include="Assets\PFKcode\Core\Managers\ShopManager.cs" />
+    <Compile Include="Assets\PFKcode\Core\Managers\AudioManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
     <Compile Include="Assets\PFKcode\Gameplay\Fishing\PlayerBarController.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="Assets\PFKcode\Core\Managers\GameManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexJitter.cs" />
     <Compile Include="Assets\PFKcode\Gameplay\Fishing\FishController.cs" />
+    <Compile Include="Assets\PFKcode\Core\Managers\QuestManager.cs" />
     <Compile Include="Assets\PFKcode\Gameplay\Fishing\FishingSceneController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
@@ -89,6 +92,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark02.cs" />
     <Compile Include="Assets\PFKcode\Core\Managers\InventoryManager.cs" />
     <Compile Include="Assets\PFKcode\Data\ScriptableObjects\CatchableData.cs" />
+    <Compile Include="Assets\PFKcode\Core\Managers\NetworkManager.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
     <Compile Include="Assets\PFKcode\UI\Components\CommonUIController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
@@ -104,6 +108,7 @@
     <Compile Include="Assets\PFKcode\Data\ScriptableObjects\FishData.cs" />
     <Compile Include="Assets\PFKcode\Gameplay\Fishing\Behaviors\FishBehaviorActions.cs" />
     <Compile Include="Assets\PFKcode\Core\Managers\UIManager.cs" />
+    <Compile Include="Assets\PFKcode\Core\Managers\AtlasManager.cs" />
     <Compile Include="Assets\PFKcode\Data\ScriptableObjects\TreasureChestData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextInfoDebugTool.cs" />
     <Compile Include="Assets\PFKcode\UI\PanelControllers\FishTankUIController.cs" />

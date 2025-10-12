@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Text;
 using System.IO;
+using System.Linq; // 引入 Linq 命名空间
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -85,11 +86,23 @@ public class HierarchyExporter
         // 获取对象名称
         string objectName = transform.gameObject.name;
 
+        // --- 新增代码开始 ---
+        // 获取对象上所有的 MonoBehaviour 脚本组件
+        var components = transform.gameObject.GetComponents<MonoBehaviour>();
+        string componentsString = "";
+        if (components.Length > 0)
+        {
+            // 使用 Linq 的 Select 方法获取所有脚本的类型名称，然后用 ", " 连接起来
+            string componentNames = string.Join(", ", components.Select(c => c.GetType().Name));
+            componentsString = $" [{componentNames}]"; // 格式化为 [脚本1, 脚本2]
+        }
+        // --- 新增代码结束 ---
+
         // 检查对象是否在Hierarchy中处于非激活状态
         string status = transform.gameObject.activeInHierarchy ? "" : " (Inactive)";
 
-        // 将格式化后的行添加到StringBuilder
-        sb.AppendLine($"{indent}{prefix}{objectName}{status}");
+        // 将格式化后的行添加到StringBuilder，加入了脚本信息
+        sb.AppendLine($"{indent}{prefix}{objectName}{componentsString}{status}");
 
         // 递归处理所有子对象
         foreach (Transform child in transform)

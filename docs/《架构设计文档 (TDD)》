@@ -37,78 +37,75 @@
 
 ```text
 Main Camera
-Canvas
-  └─ UIPersistent
+Canvas [CanvasScaler, GraphicRaycaster]
+  └─ UIPersistent [CommonUIController]
     └─ TopStatusBar
     └─ BottomNavigationBar
-  └─ UI_Panels
-    └─ Panel_Home
-    └─ Panel_Map
-      └─ CreekSpot
-      └─ FishSpotButtonGroup
-        └─ Text (TMP)
-        └─ FishSpot1Button
-          └─ Text (TMP)
-        └─ FishSpot2Button
-          └─ Text (TMP)
-        └─ FishSpot3Button
-          └─ Text (TMP)
-    └─ Panel_FishTank
-      └─ Scroll View
-        └─ Viewport
+  └─ UI_Panels [Image]
+    └─ Panel_Home [Image]
+    └─ Panel_Map [Image, MapUIController]
+      └─ FishSpot3Button [Image, Button]
+        └─ Text (TMP) [TextMeshProUGUI]
+      └─ FishSpot2Button [Image, Button]
+        └─ Text (TMP) [TextMeshProUGUI]
+      └─ FishSpot1Button [Image, Button]
+        └─ Text (TMP) [TextMeshProUGUI]
+    └─ Panel_FishTank [Image, FishTankUIController]
+      └─ Scroll View [Image, ScrollRect]
+        └─ Viewport [Image, Mask]
           └─ Content
-        └─ Scrollbar Horizontal
+        └─ Scrollbar Horizontal [Image, Scrollbar]
           └─ Sliding Area
-            └─ Handle
-        └─ Scrollbar Vertical
+            └─ Handle [Image]
+        └─ Scrollbar Vertical [Image, Scrollbar]
           └─ Sliding Area
-            └─ Handle
-      └─ SellAllButton
-        └─ Text (TMP)
-      └─ EmptyMessageText
-    └─ Panel_Backpack
-    └─ Panel_Missions
-    └─ Panel_Atlas
-    └─ Panel_Fishing
-      └─ SpotTitleText
+            └─ Handle [Image]
+      └─ SellAllButton [Image, Button]
+        └─ Text (TMP) [TextMeshProUGUI]
+      └─ EmptyMessageText [TextMeshProUGUI]
+    └─ Panel_Backpack [Image, BackpackUIController]
+    └─ Panel_Missions [Image]
+    └─ Panel_Atlas [Image]
+    └─ Panel_Shop [Image, ShopUIController]
+    └─ Panel_Fishing [FishingSceneController]
+      └─ SpotTitleText [TextMeshProUGUI]
       └─ CastingAndHooking_Module
-        └─ CastingAndHookingManager
-        └─ PowerBar
-          └─ Background
+        └─ CastingAndHookingManager [CastingAndHookingController]
+        └─ PowerBar [Slider, ParabolicPowerBarController]
+          └─ Background [Image]
           └─ Fill Area
-            └─ Fill
-          └─ SweetSpot
-        └─ Text (TMP)
-        └─ HookIcon
+            └─ Fill [Image]
+          └─ SweetSpot [Image]
+        └─ CastTip [TextMeshProUGUI]
+        └─ HookIcon [Image]
       └─ MiniGame_Module
-        └─ FishMiniGameManager
-        └─ TreasureChestController
-        └─ MiniGamePanel
-          └─ PlayerBar
-          └─ FishIcon
-          └─ ProgressBar
-            └─ Background
-            └─ Fill Area
-              └─ Fill
-          └─ ResultStatusText
-          └─ PutInBackpackButton (Inactive)
-            └─ Text (TMP) (Inactive)
-          └─ ReturnToMenuButton (Inactive)
-            └─ Text (TMP) (Inactive)
-          └─ ChestLootText (Inactive)
-EventSystem
+        └─ FishMiniGameManager [FishingMiniGameManager]
+        └─ TreasureChestController [TreasureChestController]
+        └─ PlayerBar [Image, PlayerBarController]
+        └─ FishIcon [Image, FishController]
+        └─ ProgressBar [Slider]
+          └─ Background [Image]
+          └─ Fill Area
+            └─ Fill [Image]
+        └─ ResultStatusText [TextMeshProUGUI]
+        └─ PutInBackpackButton [Image, Button]
+          └─ Text (TMP) [TextMeshProUGUI]
+        └─ ReturnToMenuButton [Image, Button]
+          └─ Text (TMP) [TextMeshProUGUI]
+        └─ ChestLootText [TextMeshProUGUI] (Inactive)
+EventSystem [EventSystem, StandaloneInputModule]
 SystemManagers
-  └─ GameManager
-  └─ UIManager
-  └─ PlayerDataManager
-  └─ InventoryManager
-  └─ EquipmentManager
-  └─ ShopManager
-  └─ TimeManager
-  └─ AtlasManager
-  └─ AudioManager
-  └─ NetworkManager
-  └─ QuestManager
+  └─ GameManager [GameManager]
+  └─ UIManager [UIManager]
+  └─ PlayerDataManager [PlayerDataManager]
+  └─ InventoryManager [InventoryManager]
+  └─ EquipmentManager [EquipmentManager]
+  └─ ShopManager [ShopManager]
+  └─ TimeManager [NewBehaviourScript]
+  └─ AtlasManager [AtlasManager]
+  └─ AudioManager [AudioManager]
+  └─ NetworkManager [NetworkManager]
+  └─ QuestManager [QuestManager]
 ```
 
 
@@ -163,54 +160,59 @@ SystemManagers
 重新规划的脚本层级结构 (Project Folder Structure)
 这是我为你设计的全新脚本文件夹结构。它强调模块化和职责分离，将是我们未来所有代码开发的标准。
 Assets
+└─ CatchableID
+  └─ FishID
+  └─ TrashID
+  └─ TreasureChestID
+└─ Chareacter
+└─ Editor
+  └─ CatchableEditor.cs
+  └─ HierarchyExporter.cs
+  └─ ScriptConverter.cs
+  └─ ScriptTreeExporter.cs
 └─ PFKcode
   └─ Core
-    └─ Managers                  // 全局、持久化的系统管理器
-      └─ GameManager.cs
-      └─ UIManager.cs
-      └─ PlayerDataManager.cs
-      └─ InventoryManager.cs
+    └─ Managers
+      └─ AtlasManager.cs
+      └─ AudioManager.cs
       └─ EquipmentManager.cs
+      └─ GameManager.cs
+      └─ InventoryManager.cs
+      └─ NetworkManager.cs
+      └─ PlayerDataManager.cs
+      └─ QuestManager.cs
       └─ ShopManager.cs
-      └─ TimeManager.cs          // (需创建)
-      └─ AtlasManager.cs         // (需创建)
-      └─ AudioManager.cs         // (需创建)
-      └─ NetworkManager.cs       // (需创建)
-      └─ QuestManager.cs         // (需创建)
-  └─ Gameplay
-    └─ Fishing                   // 钓鱼玩法核心模块
-      └─ FishingSceneController.cs
-      └─ CastingAndHookingController.cs
-      └─ FishingMiniGameManager.cs
-      └─ FishController.cs
-      └─ PlayerBarController.cs
-      └─ TreasureChestController.cs
-      └─ Behaviors               // 鱼的行为系统
-        └─ FishBehaviorActions.cs
-  └─ UI
-    └─ PanelControllers          // 各个UI面板的主控制器
-      └─ MapUIController.cs
-      └─ FishTankUIController.cs
-      └─ BackpackUIController.cs
-      └─ ShopUIController.cs
-      └─ ... (其他面板控制器)
-    └─ Components                // 可复用的UI组件或元素控制器
-      └─ CommonUIController.cs
-      └─ FishTankItemUI.cs
-      └─ ParabolicPowerBarController.cs
-      └─ FishingSpot.cs
+      └─ TimeManager.cs
+      └─ UIManager.cs
   └─ Data
-    └─ ScriptableObjects         // ScriptableObject 的定义
+    └─ Models
+      └─ InventoryItem.cs
+    └─ ScriptableObjects
       └─ CatchableData.cs
       └─ FishData.cs
       └─ TrashData.cs
       └─ TreasureChestData.cs
-    └─ Models                    // 纯C#数据模型
-      └─ InventoryItem.cs
-
-[待删除脚本]
-└─ PFKcode/Manager/GameFlowManager.cs (职责已被分解)
-└─ PFKcode/Manager/PlayerWalletManager.cs (功能已并入PlayerDataManager)
+  └─ Gameplay
+    └─ Fishing
+      └─ Behaviors
+        └─ FishBehaviorActions.cs
+      └─ CastingAndHookingController.cs
+      └─ FishController.cs
+      └─ FishingMiniGameManager.cs
+      └─ FishingSceneController.cs
+      └─ PlayerBarController.cs
+      └─ TreasureChestController.cs
+  └─ UI
+    └─ Components
+      └─ CommonUIController.cs
+      └─ FishingSpot.cs
+      └─ FishTankItemUI.cs
+      └─ ParabolicPowerBarController.cs
+    └─ PanelControllers
+      └─ BackpackUIController.cs
+      └─ FishTankUIController.cs
+      └─ MapUIController.cs
+      └─ ShopUIController.cs
 
 ### 5.2. 架构师建议
 
