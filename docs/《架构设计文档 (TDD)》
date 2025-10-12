@@ -1,0 +1,232 @@
+
+# 技术设计文档 (TDD) - V1.11
+
+  * **交付人:** 游戏架构导师 (GA-01)
+  * **交付版本:** 1.11 (取代 V1.10 的隐式架构)
+  * **主题:** 游戏核心架构重构
+
+-----
+
+## 1\. 核心问题
+
+当前 V1.10 版本的代码呈现出一种“平面化”结构，所有脚本逻辑虽已实现，但它们之间缺乏一个统一的、分层的管理机制。`GameFlowManager` 承担了过多的UI导航职责，导致其与具体UI面板高度耦合。随着游戏界面（背包、任务、图鉴等）的增加，这种模式将难以为继。
+
+**本次重构旨在解决以下问题：**
+
+  * **结构混乱:** 缺乏清晰的场景(Scene)和预制件(Prefab)组织规范。
+  * **职责不清:** 管理器(Manager)脚本的职责过于宽泛或交叉。
+  * **通信耦合:** 模块间通过直接拖拽引用，形成“蜘蛛网”式的依赖关系，难以维护。
+  * **扩展性差:** 添加新的UI界面或游戏系统需要修改大量现有代码。
+
+## 2\. 核心架构原则
+
+我们将采用业界成熟的架构模式，确保项目的长期健康。
+
+  * **单一场景(Single-Scene)架构:** 整个游戏将在一个主场景 (`SampleScene`) 中运行。不同的界面（如主菜单、钓鱼、背包）将作为独立的UI面板(Panel)被激活或隐藏，而非通过场景切换。这能有效管理常驻系统的生命周期，并避免场景加载带来的卡顿。
+  * **分层管理器(Layered Managers):** 我们将建立一个清晰的管理器层级。系统级管理器（如UI、游戏状态）将常驻内存，而功能性控制器（如钓鱼小游戏）则按需加载和销毁。
+  * **Model-View-Controller (MVC) 思想:** 我们将严格区分 **数据(Model)**、**表现(View)** 和 **逻辑(Controller)**。
+      * **Model:** `InventoryManager`, `PlayerDataManager` 等只负责管理数据和业务逻辑，不应持有任何UI组件的引用。
+      * **View:** 所有的 `xx_Panel` 及其子UI元素，只负责显示数据和接收用户输入。
+      * **Controller:** `xx_UIController` 脚本，作为View的控制中枢，它负责从Model层获取数据并更新View，同时将View层的用户输入事件传递给相应的Model。
+  * **事件驱动(Event-Driven)通信 (V2.0 目标):** 为了进一步解耦，未来版本将引入全局事件系统。例如，`InventoryManager` 在物品变动后只管发出一个 `OnInventoryChanged` 事件，任何关心此事件的UI（背包、鱼箱）可以订阅该事件并刷新自己，而无需 `InventoryManager` 知道它们的存在。
+
+## 3\. Unity场景层级 (Hierarchy) 规划
+
+所有开发工作都将在一个名为 `SampleScene` 的场景中进行。其层级结构规划如下：
+# Scene Hierarchy: SampleScene
+
+```text
+Main Camera
+Canvas
+  └─ UIPersistent
+    └─ TopStatusBar
+    └─ BottomNavigationBar
+  └─ UI_Panels
+    └─ Panel_Home
+    └─ Panel_Map
+      └─ CreekSpot
+      └─ FishSpotButtonGroup
+        └─ Text (TMP)
+        └─ FishSpot1Button
+          └─ Text (TMP)
+        └─ FishSpot2Button
+          └─ Text (TMP)
+        └─ FishSpot3Button
+          └─ Text (TMP)
+    └─ Panel_FishTank
+      └─ Scroll View
+        └─ Viewport
+          └─ Content
+        └─ Scrollbar Horizontal
+          └─ Sliding Area
+            └─ Handle
+        └─ Scrollbar Vertical
+          └─ Sliding Area
+            └─ Handle
+      └─ SellAllButton
+        └─ Text (TMP)
+      └─ EmptyMessageText
+    └─ Panel_Backpack
+    └─ Panel_Missions
+    └─ Panel_Atlas
+    └─ Panel_Fishing
+      └─ SpotTitleText
+      └─ CastingAndHooking_Module
+        └─ CastingAndHookingManager
+        └─ PowerBar
+          └─ Background
+          └─ Fill Area
+            └─ Fill
+          └─ SweetSpot
+        └─ Text (TMP)
+        └─ HookIcon
+      └─ MiniGame_Module
+        └─ FishMiniGameManager
+        └─ TreasureChestController
+        └─ MiniGamePanel
+          └─ PlayerBar
+          └─ FishIcon
+          └─ ProgressBar
+            └─ Background
+            └─ Fill Area
+              └─ Fill
+          └─ ResultStatusText
+          └─ PutInBackpackButton (Inactive)
+            └─ Text (TMP) (Inactive)
+          └─ ReturnToMenuButton (Inactive)
+            └─ Text (TMP) (Inactive)
+          └─ ChestLootText (Inactive)
+EventSystem
+SystemManagers
+  └─ GameManager
+  └─ UIManager
+  └─ PlayerDataManager
+  └─ InventoryManager
+  └─ EquipmentManager
+  └─ ShopManager
+  └─ TimeManager
+  └─ AtlasManager
+  └─ AudioManager
+  └─ NetworkManager
+  └─ QuestManager
+```
+
+
+## 4\. 核心脚本职责重构
+
+基于新的层级结构，现有脚本的职责需要重新划分和调整。
+
+### 4.1. 新增与重构的核心管理器
+
+  * **`GameManager`** (新)
+
+      * **职责:** 游戏的状态机，控制整个游戏的宏观流程（如：`MainMenu`, `InFishing`, `InInventory`）。它是所有管理器的“总指挥”。当需要切换状态时，它会向其他管理器发出指令。
+      * **取代:** 原 `GameFlowManager` 的大部分流程控制功能。
+
+  * **`UIManager`** (新)
+
+      * **职责:** 专门负责UI面板的显示与隐藏。它维护一个所有 `Panel_` 的引用字典，并提供一个 `ShowPanel(string panelName)` 和 `HidePanel(string panelName)` 的公共方法。它接收来自 `GameManager` 的指令来切换界面。
+      * **取代:** 所有脚本中零散的 `xxxPanel.SetActive()` 调用。
+
+  * **`PlayerDataManager`** (新)
+
+      * **职责:** 统一管理所有玩家数据，如等级、体力、金币、钻石等。未来负责数据的本地存储与读取。
+      * **整合:** 吸收 `PlayerWalletManager` 的功能。
+
+  * **`GameFlowManager` -\> `FishingSceneController`** (重构)
+
+      * **`GameFlowManager`** 将被废弃。
+      * 创建一个新的 **`FishingSceneController`** 并挂载在 `Panel_Fishing` 上。
+      * **职责:** 作为钓鱼“场景”的总入口，负责初始化和协调 `CastingAndHookingController` 和 `FishingMiniGameManager` 的工作流程。当 `UIManager` 激活 `Panel_Fishing` 时，此脚本开始工作。
+
+### 4.2. 数据流与交互示例
+
+让我们以 **“点击主界面的鱼箱按钮，进入鱼箱界面”** 为例，演示新的数据流：
+
+1.  **输入(View):** 玩家点击底部导航栏的“鱼箱”按钮。`Bottom_NavigationBar` 上的 `CommonUIController` 捕获到这个点击事件。
+2.  **指令(Controller -\> Manager):** `CommonUIController` 不会直接控制UI面板。相反，它调用 `GameManager.Instance.GoToFishTank()`。
+3.  **状态切换(Manager):** `GameManager` 收到指令，将游戏状态切换为 `GameState.ViewingFishTank`。然后，它命令 `UIManager.Instance.ShowPanel("Panel_FishTank")`。
+4.  **UI呈现(Manager -\> View):** `UIManager` 激活 `Panel_FishTank` 游戏对象，并隐藏其他全屏面板。
+5.  **数据绑定(Controller -\> Model -\> View):**
+      * `Panel_FishTank` 被激活，其上的 `FishTankUIController` 的 `OnEnable()` 方法被调用。
+      * `FishTankUIController` 调用 `InventoryManager.Instance.GetItemsByCategory(ItemCategory.Fish)` 来获取所有鱼类的数据 **(Model)**。
+      * `FishTankUIController` 遍历获取到的数据，动态生成或更新鱼类列表UI **(View)**。
+
+通过这个流程，我们实现了UI表现与游戏逻辑的完全分离。
+
+## 5\. 项目文件夹 (Assets) 结构规划 (新增)
+
+一个清晰的文件夹结构是代码可维护性的前提。所有脚本和相关资产应遵循以下约定：
+
+### 5.1. 目标结构
+
+重新规划的脚本层级结构 (Project Folder Structure)
+这是我为你设计的全新脚本文件夹结构。它强调模块化和职责分离，将是我们未来所有代码开发的标准。
+Assets
+└─ PFKcode
+  └─ Core
+    └─ Managers                  // 全局、持久化的系统管理器
+      └─ GameManager.cs
+      └─ UIManager.cs
+      └─ PlayerDataManager.cs
+      └─ InventoryManager.cs
+      └─ EquipmentManager.cs
+      └─ ShopManager.cs
+      └─ TimeManager.cs          // (需创建)
+      └─ AtlasManager.cs         // (需创建)
+      └─ AudioManager.cs         // (需创建)
+      └─ NetworkManager.cs       // (需创建)
+      └─ QuestManager.cs         // (需创建)
+  └─ Gameplay
+    └─ Fishing                   // 钓鱼玩法核心模块
+      └─ FishingSceneController.cs
+      └─ CastingAndHookingController.cs
+      └─ FishingMiniGameManager.cs
+      └─ FishController.cs
+      └─ PlayerBarController.cs
+      └─ TreasureChestController.cs
+      └─ Behaviors               // 鱼的行为系统
+        └─ FishBehaviorActions.cs
+  └─ UI
+    └─ PanelControllers          // 各个UI面板的主控制器
+      └─ MapUIController.cs
+      └─ FishTankUIController.cs
+      └─ BackpackUIController.cs
+      └─ ShopUIController.cs
+      └─ ... (其他面板控制器)
+    └─ Components                // 可复用的UI组件或元素控制器
+      └─ CommonUIController.cs
+      └─ FishTankItemUI.cs
+      └─ ParabolicPowerBarController.cs
+      └─ FishingSpot.cs
+  └─ Data
+    └─ ScriptableObjects         // ScriptableObject 的定义
+      └─ CatchableData.cs
+      └─ FishData.cs
+      └─ TrashData.cs
+      └─ TreasureChestData.cs
+    └─ Models                    // 纯C#数据模型
+      └─ InventoryItem.cs
+
+[待删除脚本]
+└─ PFKcode/Manager/GameFlowManager.cs (职责已被分解)
+└─ PFKcode/Manager/PlayerWalletManager.cs (功能已并入PlayerDataManager)
+
+### 5.2. 架构师建议
+
+上述结构是一个非常好的开端，它清晰地分离了`Controller`, `DataModels`, 和 `Manager`。为了更进一步提升模块化，我建议：
+
+  * **创建模块化子文件夹:** 在`PFKcode`下创建一个`Modules`或`Gameplay`文件夹。然后将高度相关的系统（如钓鱼）的所有脚本都归入其中。
+  * **示例 (钓鱼模块):**
+      * `PFKcode/Gameplay/Fishing/`
+      * 将 `FishController.cs`, `FishingMiniGameManager.cs`, `CastingAndHookingController.cs`, `PlayerBarController.cs`, `FishBehaviorActions.cs`, `FishingSpot.cs` 等所有与钓鱼玩法强相关的脚本都移动到这里。
+      * 这样做的好处是，当我们需要开发或修改钓鱼功能时，所有相关代码都在一个地方，能极大提高效率和可读性。`Controller`和`Manager`的根目录则保留给更通用的、跨模块的脚本。
+
+## 6\. 对游戏程序导师 (GP-01) 的行动计划
+
+  1. **重构现有代码:** 按照上述架构原则和文件夹结构，逐步重构现有代码。优先处理 `GameFlowManager` 和 `PlayerWalletManager` 的职责分解。
+  2. **创建新脚本:** 编写 `GameManager`, `UIManager`, `PlayerDataManager` 等核心管理器脚本，并确保它们的职责清晰。
+  3. **更新UI逻辑:** 修改所有UI面板的控制器，确保它们通过 `UIManager` 进行显示和隐藏，而非直接操作。
+  4. **测试与验证:** 每完成一个模块的重构，进行全面测试，确保功能正常且无回归。
+  5. **文档更新:** 在项目文档中记录新的架构设计和使用规范，确保团队成员理解并遵循。
+

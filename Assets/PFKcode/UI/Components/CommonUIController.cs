@@ -11,9 +11,8 @@ public class CommonUIController : MonoBehaviour
 
     public void OnFishTankButtonClicked()
     {
-        // TODO: 阶段二实现
-        // gameFlowManager.GoToFishTank();
-        Debug.Log("【CommonUIController】“鱼箱”按钮被点击。");
+        GameManager.Instance?.GoToFishTank();
+        Debug.Log("【CommonUIController】“鱼箱”按钮被点击，已通知 GameManager。");
     }
     
     // 其他通用按钮...
@@ -22,15 +21,11 @@ public class CommonUIController : MonoBehaviour
 
     public void ShowHomeButton()
     {
-        // TODO: 阶段二实现
-        // homeButton.SetActive(true);
-        // fishingButton.SetActive(false);
+        GameManager.Instance?.GoToHome();
     }
 
     public void ShowFishingButton()
     {
-        // TODO: 阶段二实现
-        // homeButton.SetActive(false);
-        // fishingButton.SetActive(true);
+        Debug.LogWarning("【CommonUIController】ShowFishingButton 已废弃，请改用具体导航方法。");
     }
 }

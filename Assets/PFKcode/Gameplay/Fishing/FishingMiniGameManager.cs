@@ -12,7 +12,7 @@ public class FishingMiniGameManager : MonoBehaviour
 {
     #region 公有变量
     [Header("系统关联")]
-    [SerializeField, FormerlySerializedAs("TheGameFlowManager")] private GameFlowManager gameFlowManager;
+    [SerializeField, FormerlySerializedAs("TheGameFlowManager"), FormerlySerializedAs("gameFlowManager")] private FishingSceneController sceneController;
     [SerializeField, FormerlySerializedAs("TreasureChestController")] private TreasureChestController treasureChestController;
 
     [Tooltip("对库存管理器的引用")]
@@ -36,7 +36,12 @@ public class FishingMiniGameManager : MonoBehaviour
     [SerializeField, FormerlySerializedAs("CloseMiniGameButton")] private Button closeMiniGameButton;      // 开始/关闭按钮（虽然在InProgress时隐藏）
     [SerializeField, FormerlySerializedAs("FishController")] private FishController fishController;    // 鱼/可捕捉物的图标脚本
 
-    public GameFlowManager GameFlowManager => gameFlowManager;
+    public FishingSceneController SceneController
+    {
+        get => sceneController;
+        set => sceneController = value;
+    }
+
     public TreasureChestController TreasureChestController => treasureChestController;
     public InventoryManager InventoryManager => inventoryManager;
     public Slider ProgressBar => progressBar;
@@ -47,7 +52,6 @@ public class FishingMiniGameManager : MonoBehaviour
     public GameObject MiniGamePanel => miniGamePanel;
     public TextMeshProUGUI ResultStatusText => resultStatusText;
     public Button CloseMiniGameButton => closeMiniGameButton;
-    public GameFlowManager TheGameFlowManager => gameFlowManager;
     public InventoryManager TheInventoryManager => inventoryManager;
 
     /// <summary> 我们用一个公开的枚举来定义所有可能的游戏状态 </summary>
@@ -83,6 +87,14 @@ public class FishingMiniGameManager : MonoBehaviour
     #endregion
 
     #region unity回调函数
+    private void Awake()
+    {
+        if (sceneController == null)
+        {
+            sceneController = FindObjectOfType<FishingSceneController>();
+        }
+    }
+
     void Start()
     {
         CurrentMiniGameState = GameState.NotStarted;
@@ -113,16 +125,29 @@ public class FishingMiniGameManager : MonoBehaviour
     public void OnResult_PutInBackpack()
     {
         HideResultUI();
-        // 向总管汇报，请求重新开始钓鱼流程
-        TheGameFlowManager.RestartFishingProcess();
+        // 向钓鱼场景控制器汇报，请求重新开始钓鱼流程
+        if (SceneController != null)
+        {
+            SceneController.RestartFishingProcess();
+        }
+        else
+        {
+            GameManager.Instance?.RestartFishing();
+        }
     }
 
     /// <summary> 这个方法处理“返回主菜单”按钮的点击 </summary>
     public void OnResult_ReturnToMenu()
     {
         HideResultUI();
-        // 向总管汇报，请求回到主菜单
-        TheGameFlowManager.GoToMainMenu();
+        if (SceneController != null)
+        {
+            SceneController.HandleReturnToMenu();
+        }
+        else
+        {
+            GameManager.Instance?.GoToHome();
+        }
     }
     #endregion
 
@@ -227,7 +252,6 @@ public class FishingMiniGameManager : MonoBehaviour
                 {
                     Debug.LogError("FishingMiniGameManager中的TheInventoryManager未设置引用!");
                 }
-                TreasureChestController.TryToAwardChest();
                 var awardedChest = TreasureChestController.TryToAwardChest();
                 if (awardedChest != null)
                 {
@@ -250,7 +274,7 @@ public class FishingMiniGameManager : MonoBehaviour
         // 停止所有游戏内活动
         FishController.StopBehavior();
 
-        // 隐藏游戏UI
+    // 隐藏游戏UI
         ProgressBar.gameObject.SetActive(false);
         PlayerBar.gameObject.SetActive(false);
         FishController.gameObject.SetActive(false);
@@ -259,6 +283,8 @@ public class FishingMiniGameManager : MonoBehaviour
         ResultStatusText.gameObject.SetActive(true);
         PutInBackpackButton.gameObject.SetActive(true);
         ReturnToMenuButton.gameObject.SetActive(true);
+
+    SceneController?.NotifyFishingSessionEnded();
     }
 
     /// <summary> 更新进度条 </summary>

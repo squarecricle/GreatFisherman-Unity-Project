@@ -6,8 +6,22 @@ using System.Linq;
 /// </summary>
 public class InventoryManager : MonoBehaviour
 {
+    public static InventoryManager Instance { get; private set; }
+
     // 使用Dictionary来存储物品，Key是物品的唯一ID，Value(InventoryItem)是物品实例
     private Dictionary<string, InventoryItem> _items = new Dictionary<string, InventoryItem>();
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
 
     /// <summary>
     /// 向背包中添加物品的核心方法

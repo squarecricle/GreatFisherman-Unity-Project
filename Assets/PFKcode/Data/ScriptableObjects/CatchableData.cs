@@ -1,8 +1,8 @@
-// CatchableData.cs
 using UnityEngine;
 using System.Collections.Generic;
-
-// 这个基类将不会直接被创建为资产，而是作为其他数据类的模板。
+/// <summary>
+/// 所有可捕获物品的基础数据类，使用ScriptableObject创建
+/// </summary>
 public abstract class CatchableData : ScriptableObject
 {
     [Header("核心信息")]
